@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trellod</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+      background: #0079bf;
+      color: #172b4d;
+    }
+
+    /* AUTH PAGE */
+    .auth-page {
+      display: none;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0079bf 0%, #0063a0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .auth-page.active {
+      display: flex;
+    }
+
+    .auth-container {
+      background: white;
+      border-radius: 12px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.25);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .auth-logo {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+
+    .auth-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0079bf;
+      margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      font-size: 14px;
+      color: #626f86;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #172b4d;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #0079bf;
+      box-shadow: 0 0 0 3px rgba(0, 121, 191, 0.1);
+      background: #f9fafb;
+    }
+
+    .form-input.hidden {
+      display: none;
+    }
+
+    .form-error {
+      background: #fee;
+      color: #c33;
+      padding: 12px 14px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      display: none;
+      border-left: 4px solid #c33;
+    }
+
+    .form-error.show {
+      display: block;
+    }
+
+    .form-actions {
+      margin-top: 24px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #0079bf;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0063a0;
+      box-shadow: 0 4px 12px rgba(0, 121, 191, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #172b4d;
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .form-divider {
+      text-align: center;
+      margin: 24px 0;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .form-divider span {
+      background: white;
+      padding: 0 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #e5e7eb;
+      z-index: 0;
+    }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: #626f86;
+    }
+
+    .auth-toggle a {
+      color: #0079bf;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .auth-toggle a:hover {
+      text-decoration: underline;
+    }
+
+    /* MAIN PAGE */
+    .main-page {
+      display: none;
+    }
+
+    .main-page.active {
+      display: block;
+    }
+
+    .navbar {
+      background: #0079bf;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: white;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .logout-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* BOARDS VIEW */
+    .boards-header {
+      margin-bottom: 32px;
+    }
+
+    .boards-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .boards-subtitle {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .create-board-section {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+
+    .create-board-form {
+      display: flex;
+      gap: 12px;
+    }
+
+    .create-board-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #172b4d;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .create-board-input::placeholder {
+      color: #9ca3af;
+    }
+
+    .create-board-input:focus {
+      outline: none;
+      border-color: white;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    .boards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
+      gap: 16px;
+    }
+
+    .board-item {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+
+    .board-item:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .board-item-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #172b4d;
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .board-item-meta {
+      font-size: 12px;
+      color: #626f86;
+      display: flex;
+      gap: 12px;
+    }
+
+    .empty-boards {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 60px 20px;
+      text-align: center;
+      grid-column: 1/-1;
+    }
+
+    .empty-boards-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .empty-boards-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .empty-boards-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* BOARD VIEW */
+    .board-view {
+      display: none;
+    }
+
+    .board-view.active {
+      display: block;
+      background: #0079bf;
+      min-height: 100vh;
+    }
+
+    .board-header {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .board-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .board-content {
+      padding: 20px;
+      overflow-x: auto;
+      display: flex;
+      gap: 16px;
+      min-height: calc(100vh - 140px);
+      align-items: flex-start;
+    }
+
+    .list {
+      background: #ebecf0;
+      border-radius: 8px;
+      width: 272px;
+      max-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .list-header {
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #172b4d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .list-title {
+      flex: 1;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .list-title:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .list-delete {
+      background: none;
+      border: none;
+      color: #626f86;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      transition: color 0.2s;
+    }
+
+    .list-delete:hover {
+      color: #172b4d;
+    }
+
+    .list-cards {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card {
+      background: white;
+      padding: 12px;
+      border-radius: 4px;
+      cursor: grab;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+      user-select: none;
+      transition: all 0.2s;
+      position: relative;
+      border: 1px solid transparent;
+    }
+
+    .card:hover {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-color: #ddd;
+    }
+
+    .card:active {
+      cursor: grabbing;
+      opacity: 0.5;
+    }
+
+    .card-title {
+      font-size: 14px;
+      color: #172b4d;
+      word-break: break-word;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .card-delete {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      background: none;
+      border: none;
+      color: #626f86;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      display: none;
+      transition: color 0.2s;
+    }
+
+    .card:hover .card-delete {
+      display: block;
+    }
+
+    .card-delete:hover {
+      color: #d32f2f;
+    }
+
+    .add-card-section {
+      padding: 8px;
+    }
+
+    .add-card-btn {
+      width: 100%;
+      padding: 10px 8px;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      border-radius: 4px;
+      color: #172b4d;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-card-btn:hover {
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .add-card-form {
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .add-card-form.active {
+      display: flex;
+    }
+
+    .add-card-input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 40px;
+    }
+
+    .add-card-input:focus {
+      outline: none;
+      border-color: #0079bf;
+      box-shadow: 0 0 0 2px rgba(0, 121, 191, 0.2);
+    }
+
+    .add-card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .add-card-actions button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+    }
+
+    .add-card-save {
+      background: #0079bf;
+      color: white;
+    }
+
+    .add-card-save:hover {
+      background: #0063a0;
+    }
+
+    .add-card-cancel {
+      background: #e5e7eb;
+      color: #172b4d;
+    }
+
+    .add-card-cancel:hover {
+      background: #d1d5db;
+    }
+
+    .add-list-btn {
+      background: rgba(0, 0, 0, 0.15);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      width: 272px;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .add-list-btn:hover {
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .no-cards {
+      padding: 20px 8px;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- AUTH PAGE -->
+  <div class="auth-page active" id="authPage">
+    <div class="auth-container">
+      <div class="auth-header">
+        <div class="auth-logo">📋</div>
+        <div class="auth-title">Trellod</div>
+        <div class="auth-subtitle">Organize anything, together</div>
+      </div>
+
+      <div class="form-error" id="authError"></div>
+
+      <form onsubmit="handleAuth(event)">
+        <div class="form-group hidden" id="nameGroup">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="nameInput" class="form-input" placeholder="Your name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="emailInput" class="form-input" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="authBtn">Log in</button>
+        </div>
+      </form>
+
+      <div class="form-divider"><span>or</span></div>
+
+      <div class="auth-toggle">
+        <span id="authToggleText">Don't have an account?</span>
+        <a onclick="toggleAuthMode()">Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN PAGE -->
+  <div class="main-page" id="mainPage">
+    <div class="navbar">
+      <div class="navbar-left">
+        📋 Trellod
+      </div>
+      <div class="navbar-right">
+        <div class="user-profile">
+          <div class="user-avatar" id="userAvatar">D</div>
+          <div>
+            <div id="userName" style="font-weight: 600;">User</div>
+            <div id="userEmail" style="font-size: 11px; opacity: 0.8;"></div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Sign out</button>
+      </div>
+    </div>
+
+    <!-- BOARDS VIEW -->
+    <div class="container" id="boardsView">
+      <div class="boards-header">
+        <div class="boards-title">Your Boards</div>
+        <div class="boards-subtitle">Welcome back! Here are your workspaces</div>
+      </div>
+
+      <div class="create-board-section">
+        <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 12px;">Create board</div>
+        <div class="create-board-form">
+          <input type="text" id="boardInput" class="create-board-input" placeholder="Board name...">
+          <button class="btn btn-primary" onclick="createBoard()" style="flex: 0 0 auto; padding: 10px 24px;">Create</button>
+        </div>
+      </div>
+
+      <div class="boards-grid" id="boardsList"></div>
+    </div>
+
+    <!-- BOARD VIEW -->
+    <div id="boardDetail" class="board-view">
+      <div class="board-header">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <button class="back-btn" onclick="goToBoards()">← Back</button>
+          <div class="board-title" id="boardTitleDisplay"></div>
+        </div>
+      </div>
+      <div class="board-content" id="board"></div>
+    </div>
+  </div>
+
+  <script>
+    const USERS_KEY = 'trello-users';
+    const CURRENT_USER_KEY = 'trello-current-user';
+    const BOARDS_KEY = 'trello-boards';
+
+    // Production: Ganti dengan URL Vercel setelah deploy
+    // const API = 'https://trello-clone.vercel.app/api';
+    // Local: Ganti dengan localhost jika development
+    // const API = 'http://localhost:5000/api';
+
+    let isLoginMode = true;
+    let currentUser = null;
+    let currentBoardId = null;
+    let draggedCard = null;
+    let draggedFromList = null;
+
+    function init() {
+      const user = localStorage.getItem(CURRENT_USER_KEY);
+      if (user) {
+        currentUser = JSON.parse(user);
+        showMainPage();
+        loadBoards();
+      }
+    }
+
+    function toggleAuthMode() {
+      isLoginMode = !isLoginMode;
+      document.getElementById('nameGroup').classList.toggle('hidden');
+      document.getElementById('authBtn').textContent = isLoginMode ? 'Log in' : 'Sign up';
+      document.getElementById('authToggleText').textContent = isLoginMode ? "Don't have an account?" : 'Already have an account?';
+      document.getElementById('authError').classList.remove('show');
+    }
+
+    function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value.trim();
+      const name = document.getElementById('nameInput').value.trim();
+
+      if (!email || !password) {
+        showAuthError('Please fill in all fields');
+        return;
+      }
+
+      if (!isLoginMode && !name) {
+        showAuthError('Please enter your name');
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+
+      if (isLoginMode) {
+        const user = users.find(u => u.email === email && u.password === password);
+        if (!user) {
+          showAuthError('Invalid email or password');
+          return;
+        }
+        currentUser = { id: user.id, email: user.email, name: user.name };
+      } else {
+        if (users.find(u => u.email === email)) {
+          showAuthError('Email already registered');
+          return;
+        }
+        const newUser = { id: Date.now(), email, password, name };
+        users.push(newUser);
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        currentUser = { id: newUser.id, email: newUser.email, name: newUser.name };
+      }
+
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+      showMainPage();
+      loadBoards();
+    }
+
+    function showAuthError(msg) {
+      const err = document.getElementById('authError');
+      err.textContent = '⚠️ ' + msg;
+      err.classList.add('show');
+      setTimeout(() => err.classList.remove('show'), 3000);
+    }
+
+    function showMainPage() {
+      document.getElementById('authPage').classList.remove('active');
+      document.getElementById('mainPage').classList.add('active');
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userEmail').textContent = currentUser.email;
+      document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+    }
+
+    function logout() {
+      if (confirm('Sign out?')) {
+        localStorage.removeItem(CURRENT_USER_KEY);
+        currentUser = null;
+        isLoginMode = true;
+        document.getElementById('authPage').classList.add('active');
+        document.getElementById('mainPage').classList.remove('active');
+        document.getElementById('emailInput').value = '';
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('nameInput').value = '';
+        document.getElementById('authError').classList.remove('show');
+      }
+    }
+
+    function loadBoards() {
+      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
+      const userBoards = boards.filter(b => b.userId === currentUser.id);
+      renderBoardsList(userBoards);
+    }
+
+    function renderBoardsList(boards) {
+      const list = document.getElementById('boardsList');
+      if (boards.length === 0) {
+        list.innerHTML = `
+          <div class="empty-boards">
+            <div class="empty-boards-icon">📭</div>
+            <div class="empty-boards-title">No boards yet</div>
+            <div class="empty-boards-text">Create a board above to get started</div>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = boards.map(b => `
+        <div class="board-item" onclick="openBoard(${b.id})">
+          <div class="board-item-title">${escapeHtml(b.title)}</div>
+          <div class="board-item-meta">
+            <span>📊 ${b.lists.length} lists</span>
+            <span>🗂️ ${b.lists.reduce((sum, l) => sum + l.cards.length, 0)} cards</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function createBoard() {
+      const input = document.getElementById('boardInput');
+      const title = input.value.trim();
+      if (!title) return;
+
+      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
+      const newBoard = {
+        id: Date.now(),
+        userId: currentUser.id,
+        title,
+        lists: [
+          { id: 1, title: 'To Do', cards: [] },
+          { id: 2, title: 'In Progress', cards: [] },
+          { id: 3, title: 'Done', cards: [] }
+        ]
+      };
+      boards.push(newBoard);
+      localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
+      input.value = '';
+      loadBoards();
+    }
+
+    function openBoard(boardId) {
+      currentBoardId = boardId;
+      document.getElementById('boardsView').style.display = 'none';
+      document.getElementById('boardDetail').classList.add('active');
+
+      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
+      const board = boards.find(b => b.id === boardId);
+      if (board) {
+        document.getElementById('boardTitleDisplay').textContent = board.title;
+        renderBoard(board);
+      }
+    }
+
+    function goToBoards() {
+      currentBoardId = null;
+      document.getElementById('boardsView').style.display = 'block';
+      document.getElementById('boardDetail').classList.remove('active');
+      loadBoards();
+    }
+
+    function renderBoard(board) {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+
+      board.lists.forEach(list => {
+        const listEl = document.createElement('div');
+        listEl.className = 'list';
+
+        let cardsHtml = '';
+        list.cards.forEach(card => {
+          cardsHtml += `
+            <div class="card" draggable="true" data-card-id="${card.id}" data-list-id="${list.id}">
+              <div class="card-title">${escapeHtml(card.text)}</div>
+              <button class="card-delete" onclick="deleteCard(${list.id}, ${card.id})">×</button>
+            </div>
+          `;
+        });
+
+        listEl.innerHTML = `
+          <div class="list-header">
+            <div class="list-title">${escapeHtml(list.title)}</div>
+            <button class="list-delete" onclick="deleteList(${list.id})">⋯</button>
+          </div>
+          <div class="list-cards" id="list-${list.id}">
+            ${cardsHtml || '<div class="no-cards">No cards yet</div>'}
+          </div>
+          <div class="add-card-section">
+            <button class="add-card-btn" onclick="toggleAddCard(${list.id})">+ Add card</button>
+            <div class="add-card-form" id="form-${list.id}">
+              <input type="text" class="add-card-input" id="input-${list.id}" placeholder="Enter card title...">
+              <div class="add-card-actions">
+                <button type="button" class="add-card-save" onclick="addCard(${list.id})">Add</button>
+                <button type="button" class="add-card-cancel" onclick="toggleAddCard(${list.id})">Cancel</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const cardsContainer = listEl.querySelector(`#list-${list.id}`);
+        const cards = cardsContainer.querySelectorAll('.card');
+        cards.forEach(card => {
+          card.addEventListener('dragstart', () => {
+            draggedCard = card;
+            draggedFromList = list.id;
+            card.style.opacity = '0.5';
+          });
+          card.addEventListener('dragend', () => {
+            if (card) card.style.opacity = '1';
+          });
+        });
+
+        cardsContainer.addEventListener('dragover', (e) => e.preventDefault());
+        cardsContainer.addEventListener('drop', (e) => {
+          e.preventDefault();
+          if (draggedCard) {
+            moveCard(draggedCard.dataset.cardId, draggedFromList, list.id);
+            draggedCard.style.opacity = '1';
+            draggedCard = null;
+          }
+        });
+
+        boardEl.appendChild(listEl);
+      });
+
+      const addListEl = document.createElement('button');
+      addListEl.className = 'add-list-btn';
+      addListEl.textContent = '+ Add list';
+      addListEl.onclick = addListPrompt;
+      boardEl.appendChild(addListEl);
+    }
+
+    function toggleAddCard(listId) {
+      const form = document.getElementById(`form-${listId}`);
+      form.classList.toggle('active');
+      if (form.classList.contains('active')) {
+        document.getElementById(`input-${listId}`).focus();
+      }
+    }
+
+    function addCard(listId) {
+      const input = document.getElementById(`input-${listId}`);
+      const text = input.value.trim();
+      if (!text) return;
+
+      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
+      const board = boards.find(b => b.id === currentBoardId);
+      if (board) {
+        const list = board.lists.find(l => l.id === listId);
+        if (list) {
+          list.cards.push({ id: Date.now(), text });
+          localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
+          input.value = '';
+          toggleAddCard(listId);
+          openBoard(currentBoardId);
+        }
+      }
+    }
+
+    function deleteCard(listId, cardId) {
+      if (!confirm('Delete this card?')) return;
+      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
+      const board = boards.find(b => b.id === currentBoardId);
+      if (board) {
+        const list = board.lists.find(l => l.id === listId);
+        if (list) {
+          list.cards = list.cards.filter(c => c.id !== cardId);
+          localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
+          openBoard(currentBoardId);
+        }
+      }
+    }
+
+    function moveCard(cardId, fromListId, toListId) {
+      if (fromListId === toListId) return;
+      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
+      const board = boards.find(b => b.id === currentBoardId);
+      if (board) {
+        const fromList = board.lists.find(l => l.id === fromListId);
+        const toList = board.lists.find(l => l.id === toListId);
+        if (fromList && toList) {
+          const card = fromList.cards.find(c => c.id === parseInt(cardId));
+          if (card) {
+            fromList.cards = fromList.cards.filter(c => c.id !== parseInt(cardId));
+            toList.cards.push(card);
+            localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
+            openBoard(currentBoardId);
+          }
+        }
+      }
+    }
+
+    function addListPrompt() {
+      const title = prompt('List name:');
+      if (title && title.trim()) {
+        const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
+        const board = boards.find(b => b.id === currentBoardId);
+        if (board) {
+          board.lists.push({ id: Date.now(), title: title.trim(), cards: [] });
+          localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
+          openBoard(currentBoardId);
+        }
+      }
+    }
+
+    function deleteList(listId) {
+      if (!confirm('Delete list and all cards?')) return;
+      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
+      const board = boards.find(b => b.id === currentBoardId);
+      if (board) {
+        board.lists = board.lists.filter(l => l.id !== listId);
+        localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
+        openBoard(currentBoardId);
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>

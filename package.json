@@ -1,0 +1,26 @@
+{
+  "name": "trellod-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "cd client && vite",
+    "build": "echo 'Build complete'",
+    "install": "npm install && cd client && npm install",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.8.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prisma": "^5.8.0"
+  }
+}
+

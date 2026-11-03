@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  password String
+  name String
+
+  boards Board[]
+  createdAt DateTime @default(now())
+}
+
+model Board {
+  id    Int     @id @default(autoincrement())
+  title String
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  lists List[]
+  createdAt DateTime @default(now())
+}
+
+model List {
+  id    Int     @id @default(autoincrement())
+  title String
+  boardId Int
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  order Int @default(0)
+
+  cards Card[]
+  createdAt DateTime @default(now())
+}
+
+model Card {
+  id    Int     @id @default(autoincrement())
+  title String
+  description String?
+  listId Int
+  list List @relation(fields: [listId], references: [id], onDelete: Cascade)
+  order Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

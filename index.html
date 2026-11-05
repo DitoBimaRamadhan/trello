@@ -41,7 +41,7 @@
 </head>
 <body class="bg-slate-100 font-sans text-trello-textPrimary h-screen flex flex-col overflow-hidden select-none" x-data="trelloEngine()" @keydown.escape.window="closeAllModals()">
 
-    <!-- ==================== LOGIN GOOGLE SSO ==================== -->
+    <!-- ==================== HALAMAN AUTH (MASUK / DAFTAR) ==================== -->
     <template x-if="!currentUser">
         <div class="fixed inset-0 bg-slate-100 flex items-center justify-center p-4 z-50 overflow-y-auto">
             <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 border border-slate-200 text-center space-y-5 my-8">
@@ -427,10 +427,10 @@
                 boards: [],
 
                 init() {
-                    const savedUser = localStorage.getItem('trello_google_user');
-                    if (savedUser) {
+                    const savedSession = localStorage.getItem('trello_session_user');
+                    if (savedSession) {
                         try {
-                            this.currentUser = JSON.parse(savedUser);
+                            this.currentUser = JSON.parse(savedSession);
                             this.loadUserBoards();
                         } catch(e) {}
                     }
@@ -467,7 +467,7 @@
                         return;
                     }
                     this.currentUser = { name: found.name, email: found.email, initials: found.initials };
-                    localStorage.setItem('trello_google_user', JSON.stringify(this.currentUser));
+                    localStorage.setItem('trello_session_user', JSON.stringify(this.currentUser));
                     this.loadUserBoards();
                 },
 
@@ -483,7 +483,7 @@
                     users.push({ name: this.authName.trim(), email, password: this.authPassword, initials });
                     this.setUsers(users);
                     this.currentUser = { name: this.authName.trim(), email, initials };
-                    localStorage.setItem('trello_google_user', JSON.stringify(this.currentUser));
+                    localStorage.setItem('trello_session_user', JSON.stringify(this.currentUser));
                     this.loadUserBoards();
                 },
 
@@ -514,7 +514,7 @@
 
                 logout() {
                     this.currentUser = null;
-                    localStorage.removeItem('trello_google_user');
+                    localStorage.removeItem('trello_session_user');
                 },
 
                 saveData() {

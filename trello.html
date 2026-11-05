@@ -713,11 +713,11 @@ echo Aplikasi berjalan dengan sukses! Jendela ini dapat ditutup.
 timeout /t 5 >nul
 exit`;
 
-                    const blob = new Blob([batchScript], { type: 'application/x-msdownload' });
+                    const blob = new Blob([batchScript], { type: 'application/octet-stream' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'Trello-Desktop.exe';
+                    a.download = 'Trello-Desktop.bat';
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);

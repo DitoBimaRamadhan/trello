@@ -43,31 +43,52 @@
 
     <!-- ==================== LOGIN GOOGLE SSO ==================== -->
     <template x-if="!currentUser">
-        <div class="fixed inset-0 bg-slate-100 flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 border border-slate-200 text-center space-y-6">
+        <div class="fixed inset-0 bg-slate-100 flex items-center justify-center p-4 z-50 overflow-y-auto">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 border border-slate-200 text-center space-y-5 my-8">
                 <div class="flex items-center justify-center space-x-2 text-trello-blue">
                     <i class="fa-brands fa-trello text-4xl"></i>
                     <span class="text-3xl font-extrabold tracking-tight text-trello-darkblue">Trello</span>
                 </div>
 
-                <div class="space-y-1">
-                    <h1 class="text-xl font-bold text-trello-textPrimary">Masuk untuk melanjutkan ke Trello</h1>
-                    <p class="text-xs text-trello-textSubtle">Kelola proyek dan tugas visual Anda dengan mudah.</p>
+                <!-- Tab Login / Daftar -->
+                <div class="flex bg-slate-100 rounded-xl p-1 text-sm font-bold" role="tablist">
+                    <button @click="authMode = 'login'" :class="authMode === 'login' ? 'bg-white shadow text-trello-textPrimary' : 'text-slate-500 hover:text-slate-700'" class="flex-1 py-2 rounded-lg transition" role="tab">Masuk</button>
+                    <button @click="authMode = 'register'" :class="authMode === 'register' ? 'bg-white shadow text-trello-textPrimary' : 'text-slate-500 hover:text-slate-700'" class="flex-1 py-2 rounded-lg transition" role="tab">Daftar</button>
                 </div>
 
-                <div class="space-y-3 pt-2">
-                    <button @click="loginWithGoogle()" class="w-full bg-white hover:bg-slate-50 text-slate-700 font-semibold py-3 px-4 rounded-xl border border-slate-300 shadow-sm flex items-center justify-center space-x-3 transition transform active:scale-98">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                        </svg>
-                        <span class="text-sm font-bold">Lanjutkan dengan Google</span>
-                    </button>
-                </div>
+                <!-- ============ FORM LOGIN ============ -->
+                <form x-show="authMode === 'login'" @submit.prevent="doLogin()" class="space-y-3 text-left">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Email</label>
+                        <input type="email" x-model="authEmail" required placeholder="nama@email.com" class="w-full border p-2.5 rounded-lg text-sm outline-none focus:border-trello-blue">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                        <input type="password" x-model="authPassword" required placeholder="••••••••" class="w-full border p-2.5 rounded-lg text-sm outline-none focus:border-trello-blue">
+                    </div>
+                    <p x-show="authError" x-text="authError" class="text-xs text-red-600 font-semibold"></p>
+                    <button type="submit" class="w-full bg-trello-blue hover:bg-trello-nav text-white py-2.5 rounded-lg font-bold text-sm shadow transition">Masuk</button>
+                </form>
 
-                <div class="text-[11px] text-slate-400 pt-4 border-t border-slate-100">
+                <!-- ============ FORM DAFTAR ============ -->
+                <form x-show="authMode === 'register'" @submit.prevent="doRegister()" class="space-y-3 text-left">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap</label>
+                        <input type="text" x-model="authName" required placeholder="Nama Anda" class="w-full border p-2.5 rounded-lg text-sm outline-none focus:border-trello-blue">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Email</label>
+                        <input type="email" x-model="authEmail" required placeholder="nama@email.com" class="w-full border p-2.5 rounded-lg text-sm outline-none focus:border-trello-blue">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Password (min. 6 karakter)</label>
+                        <input type="password" x-model="authPassword" required minlength="6" placeholder="••••••••" class="w-full border p-2.5 rounded-lg text-sm outline-none focus:border-trello-blue">
+                    </div>
+                    <p x-show="authError" x-text="authError" class="text-xs text-red-600 font-semibold"></p>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg font-bold text-sm shadow transition">Buat Akun Baru</button>
+                </form>
+
+                <div class="text-[11px] text-slate-400 pt-3 border-t border-slate-100">
                     Dengan melanjutkan, Anda menyetujui <a href="#" class="text-blue-600 underline">Ketentuan Layanan</a> Trello.
                 </div>
             </div>
@@ -132,7 +153,7 @@
                             </div>
                             <button @click="logout()" class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 font-semibold text-xs flex items-center space-x-2">
                                 <i class="fa-solid fa-right-from-bracket"></i>
-                                <span>Keluar Akun Google</span>
+                                <span>Keluar Akun</span>
                             </button>
                         </div>
                     </div>
@@ -403,56 +424,92 @@
                 draggedCardRef: null,
                 draggedListIndex: null,
 
-                boards: [
-                    {
-                        id: 'board-q3',
-                        title: 'Pengembangan Aplikasi Q3',
-                        bg: 'bg-gradient-to-br from-blue-600 to-indigo-800',
-                        starred: true,
-                        lists: [
-                            {
-                                id: 'lst-1',
-                                title: 'To Do',
-                                cards: [
-                                    {
-                                        id: 'c-1',
-                                        title: 'Download Trello-Desktop.exe',
-                                        description: 'Format .exe dan tipe file application.',
-                                        dueDate: '2026-11-12',
-                                        dueDateCompleted: true,
-                                        coverColor: 'bg-emerald-600',
-                                        labels: [{ color: 'bg-emerald-500', text: 'Aplikasi .exe' }],
-                                        members: 'DB',
-                                        checklists: [],
-                                        comments: []
-                                    }
-                                ]
-                            },
-                            { id: 'lst-2', title: 'In Progress', cards: [] },
-                            { id: 'lst-3', title: 'Done', cards: [] }
-                        ]
-                    }
-                ],
+                boards: [],
 
                 init() {
                     const savedUser = localStorage.getItem('trello_google_user');
                     if (savedUser) {
-                        try { this.currentUser = JSON.parse(savedUser); } catch(e) {}
-                    }
-                    const localData = localStorage.getItem('trello_engine_data_v5');
-                    if (localData) {
-                        try { this.boards = JSON.parse(localData); } catch(e) {}
+                        try {
+                            this.currentUser = JSON.parse(savedUser);
+                            this.loadUserBoards();
+                        } catch(e) {}
                     }
                 },
 
-                loginWithGoogle() {
-                    const mockUser = {
-                        name: 'Dito Bima Ramadhan',
-                        email: 'ditobima@gmail.com',
-                        initials: 'DB'
-                    };
-                    this.currentUser = mockUser;
-                    localStorage.setItem('trello_google_user', JSON.stringify(mockUser));
+                // ====== AUTH: Login & Registrasi Akun ======
+                authMode: 'login',
+                authName: '',
+                authEmail: '',
+                authPassword: '',
+                authError: '',
+
+                usersKey() { return 'trello_users'; },
+
+                getUsers() {
+                    try { return JSON.parse(localStorage.getItem(this.usersKey())) || []; }
+                    catch(e) { return []; }
+                },
+
+                setUsers(users) {
+                    localStorage.setItem(this.usersKey(), JSON.stringify(users));
+                },
+
+                doLogin() {
+                    this.authError = '';
+                    const users = this.getUsers();
+                    const found = users.find(u => u.email === this.authEmail.trim().toLowerCase());
+                    if (!found) {
+                        this.authError = 'Akun belum terdaftar. Silakan Daftar terlebih dahulu.';
+                        return;
+                    }
+                    if (found.password !== this.authPassword) {
+                        this.authError = 'Password salah.';
+                        return;
+                    }
+                    this.currentUser = { name: found.name, email: found.email, initials: found.initials };
+                    localStorage.setItem('trello_google_user', JSON.stringify(this.currentUser));
+                    this.loadUserBoards();
+                },
+
+                doRegister() {
+                    this.authError = '';
+                    const email = this.authEmail.trim().toLowerCase();
+                    const users = this.getUsers();
+                    if (users.some(u => u.email === email)) {
+                        this.authError = 'Email sudah terdaftar. Silakan Masuk.';
+                        return;
+                    }
+                    const initials = this.authName.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                    users.push({ name: this.authName.trim(), email, password: this.authPassword, initials });
+                    this.setUsers(users);
+                    this.currentUser = { name: this.authName.trim(), email, initials };
+                    localStorage.setItem('trello_google_user', JSON.stringify(this.currentUser));
+                    this.loadUserBoards();
+                },
+
+                userStorageKey() {
+                    return 'trello_boards_' + (this.currentUser?.email || 'anon');
+                },
+
+                loadUserBoards() {
+                    const data = localStorage.getItem(this.userStorageKey());
+                    this.boards = data ? JSON.parse(data) : this.defaultBoards();
+                },
+
+                defaultBoards() {
+                    return [
+                        {
+                            id: 'board-' + Date.now(),
+                            title: 'Board Pertama Saya',
+                            bg: 'bg-gradient-to-br from-blue-600 to-indigo-800',
+                            starred: false,
+                            lists: [
+                                { id: 'l-1', title: 'To Do', cards: [] },
+                                { id: 'l-2', title: 'In Progress', cards: [] },
+                                { id: 'l-3', title: 'Done', cards: [] }
+                            ]
+                        }
+                    ];
                 },
 
                 logout() {
@@ -461,7 +518,7 @@
                 },
 
                 saveData() {
-                    localStorage.setItem('trello_engine_data_v5', JSON.stringify(this.boards));
+                    localStorage.setItem(this.userStorageKey(), JSON.stringify(this.boards));
                 },
 
                 closeAllModals() {
@@ -535,7 +592,7 @@
                         dueDateCompleted: false,
                         coverColor: '',
                         labels: [],
-                        members: this.currentUser?.initials || 'DB',
+                        members: this.currentUser?.initials || '',
                         checklists: [],
                         comments: []
                     });
@@ -612,8 +669,8 @@
                     if (!this.selectedCard.comments) this.selectedCard.comments = [];
                     this.selectedCard.comments.unshift({
                         id: 'm-' + Date.now(),
-                        author: this.currentUser?.name || 'Dito Bima',
-                        authorInitials: this.currentUser?.initials || 'DB',
+                        author: this.currentUser?.name || 'Saya',
+                        authorInitials: this.currentUser?.initials || 'S',
                         text: this.newCommentInput.trim(),
                         date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
                     });
@@ -651,7 +708,7 @@ echo   MENJALANKAN APLIKASI TRELLO DESKTOP (NATIVE WINDOWS)
 echo ========================================================
 echo.
 echo Membuka antarmuka Trello Workspace...
-start "" "%~dp0trello.html"
+start "" "%~dp0index.html"
 echo.
 echo Aplikasi berjalan dengan sukses! Jendela ini dapat ditutup.
 timeout /t 5 >nul

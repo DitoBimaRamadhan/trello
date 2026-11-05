@@ -1,1108 +1,1036 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trellod</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
-      background: #0079bf;
-      color: #172b4d;
-    }
-
-    /* AUTH PAGE */
-    .auth-page {
-      display: none;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0079bf 0%, #0063a0 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .auth-page.active {
-      display: flex;
-    }
-
-    .auth-container {
-      background: white;
-      border-radius: 12px;
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 440px;
-      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.25);
-    }
-
-    .auth-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .auth-logo {
-      font-size: 40px;
-      margin-bottom: 8px;
-    }
-
-    .auth-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #0079bf;
-      margin-bottom: 8px;
-    }
-
-    .auth-subtitle {
-      font-size: 14px;
-      color: #626f86;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-label {
-      display: block;
-      font-weight: 600;
-      font-size: 13px;
-      margin-bottom: 6px;
-      color: #172b4d;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      font-size: 14px;
-      font-family: inherit;
-      transition: all 0.2s;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #0079bf;
-      box-shadow: 0 0 0 3px rgba(0, 121, 191, 0.1);
-      background: #f9fafb;
-    }
-
-    .form-input.hidden {
-      display: none;
-    }
-
-    .form-error {
-      background: #fee;
-      color: #c33;
-      padding: 12px 14px;
-      border-radius: 4px;
-      margin-bottom: 16px;
-      font-size: 13px;
-      display: none;
-      border-left: 4px solid #c33;
-    }
-
-    .form-error.show {
-      display: block;
-    }
-
-    .form-actions {
-      margin-top: 24px;
-    }
-
-    .btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      width: 100%;
-    }
-
-    .btn-primary {
-      background: #0079bf;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #0063a0;
-      box-shadow: 0 4px 12px rgba(0, 121, 191, 0.3);
-    }
-
-    .btn-primary:active {
-      transform: scale(0.98);
-    }
-
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #172b4d;
-      border: 1px solid #e5e7eb;
-    }
-
-    .btn-secondary:hover {
-      background: #e5e7eb;
-    }
-
-    .form-divider {
-      text-align: center;
-      margin: 24px 0;
-      font-size: 13px;
-      color: #9ca3af;
-    }
-
-    .form-divider span {
-      background: white;
-      padding: 0 8px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .form-divider::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: #e5e7eb;
-      z-index: 0;
-    }
-
-    .auth-toggle {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 13px;
-      color: #626f86;
-    }
-
-    .auth-toggle a {
-      color: #0079bf;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .auth-toggle a:hover {
-      text-decoration: underline;
-    }
-
-    /* MAIN PAGE */
-    .main-page {
-      display: none;
-    }
-
-    .main-page.active {
-      display: block;
-    }
-
-    .navbar {
-      background: #0079bf;
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .navbar-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .navbar-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      color: white;
-    }
-
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      font-size: 13px;
-    }
-
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .logout-btn {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .logout-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* BOARDS VIEW */
-    .boards-header {
-      margin-bottom: 32px;
-    }
-
-    .boards-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 4px;
-    }
-
-    .boards-subtitle {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .create-board-section {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 32px;
-    }
-
-    .create-board-form {
-      display: flex;
-      gap: 12px;
-    }
-
-    .create-board-input {
-      flex: 1;
-      padding: 12px 16px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.95);
-      color: #172b4d;
-      font-size: 14px;
-      font-family: inherit;
-    }
-
-    .create-board-input::placeholder {
-      color: #9ca3af;
-    }
-
-    .create-board-input:focus {
-      outline: none;
-      border-color: white;
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-    }
-
-    .boards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
-      gap: 16px;
-    }
-
-    .board-item {
-      background: white;
-      border-radius: 8px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      border: 1px solid #e5e7eb;
-    }
-
-    .board-item:hover {
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-      transform: translateY(-2px);
-    }
-
-    .board-item-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #172b4d;
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
-
-    .board-item-meta {
-      font-size: 12px;
-      color: #626f86;
-      display: flex;
-      gap: 12px;
-    }
-
-    .empty-boards {
-      background: rgba(255, 255, 255, 0.08);
-      border: 2px dashed rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      padding: 60px 20px;
-      text-align: center;
-      grid-column: 1/-1;
-    }
-
-    .empty-boards-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    .empty-boards-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 4px;
-    }
-
-    .empty-boards-text {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    /* BOARD VIEW */
-    .board-view {
-      display: none;
-    }
-
-    .board-view.active {
-      display: block;
-      background: #0079bf;
-      min-height: 100vh;
-    }
-
-    .board-header {
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.1);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .board-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: white;
-    }
-
-    .back-btn {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .back-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    .board-content {
-      padding: 20px;
-      overflow-x: auto;
-      display: flex;
-      gap: 16px;
-      min-height: calc(100vh - 140px);
-      align-items: flex-start;
-    }
-
-    .list {
-      background: #ebecf0;
-      border-radius: 8px;
-      width: 272px;
-      max-height: calc(100vh - 160px);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
-
-    .list-header {
-      padding: 12px 16px;
-      font-weight: 600;
-      font-size: 14px;
-      color: #172b4d;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .list-title {
-      flex: 1;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: background 0.2s;
-    }
-
-    .list-title:hover {
-      background: rgba(0, 0, 0, 0.08);
-    }
-
-    .list-delete {
-      background: none;
-      border: none;
-      color: #626f86;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px 8px;
-      transition: color 0.2s;
-    }
-
-    .list-delete:hover {
-      color: #172b4d;
-    }
-
-    .list-cards {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .card {
-      background: white;
-      padding: 12px;
-      border-radius: 4px;
-      cursor: grab;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-      user-select: none;
-      transition: all 0.2s;
-      position: relative;
-      border: 1px solid transparent;
-    }
-
-    .card:hover {
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      border-color: #ddd;
-    }
-
-    .card:active {
-      cursor: grabbing;
-      opacity: 0.5;
-    }
-
-    .card-title {
-      font-size: 14px;
-      color: #172b4d;
-      word-break: break-word;
-      font-weight: 500;
-      line-height: 1.4;
-    }
-
-    .card-delete {
-      position: absolute;
-      right: 8px;
-      top: 8px;
-      background: none;
-      border: none;
-      color: #626f86;
-      cursor: pointer;
-      font-size: 14px;
-      padding: 4px;
-      display: none;
-      transition: color 0.2s;
-    }
-
-    .card:hover .card-delete {
-      display: block;
-    }
-
-    .card-delete:hover {
-      color: #d32f2f;
-    }
-
-    .add-card-section {
-      padding: 8px;
-    }
-
-    .add-card-btn {
-      width: 100%;
-      padding: 10px 8px;
-      background: rgba(0, 0, 0, 0.1);
-      border: none;
-      border-radius: 4px;
-      color: #172b4d;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .add-card-btn:hover {
-      background: rgba(0, 0, 0, 0.15);
-    }
-
-    .add-card-form {
-      padding: 8px;
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .add-card-form.active {
-      display: flex;
-    }
-
-    .add-card-input {
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 13px;
-      font-family: inherit;
-      resize: vertical;
-      min-height: 40px;
-    }
-
-    .add-card-input:focus {
-      outline: none;
-      border-color: #0079bf;
-      box-shadow: 0 0 0 2px rgba(0, 121, 191, 0.2);
-    }
-
-    .add-card-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .add-card-actions button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex: 1;
-    }
-
-    .add-card-save {
-      background: #0079bf;
-      color: white;
-    }
-
-    .add-card-save:hover {
-      background: #0063a0;
-    }
-
-    .add-card-cancel {
-      background: #e5e7eb;
-      color: #172b4d;
-    }
-
-    .add-card-cancel:hover {
-      background: #d1d5db;
-    }
-
-    .add-list-btn {
-      background: rgba(0, 0, 0, 0.15);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      width: 272px;
-      padding: 12px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-
-    .add-list-btn:hover {
-      background: rgba(0, 0, 0, 0.25);
-    }
-
-    .no-cards {
-      padding: 20px 8px;
-      text-align: center;
-      color: #9ca3af;
-      font-size: 12px;
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 0, 0, 0.3);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk ke Trello - Google SSO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        trello: {
+                            blue: '#0065FF',
+                            darkblue: '#091E42',
+                            nav: '#0052CC',
+                            boardHeader: 'rgba(0,0,0,0.24)',
+                            cardbg: '#FFFFFF',
+                            listbg: '#F1F2F4',
+                            hoverList: '#091E420F',
+                            textPrimary: '#172B4D',
+                            textSubtle: '#44546F',
+                            border: '#091E4224'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+        .list-scrollbar::-webkit-scrollbar-thumb { background: rgba(9, 30, 66, 0.2); }
+        .list-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(9, 30, 66, 0.3); }
+    </style>
 </head>
-<body>
-  <!-- AUTH PAGE -->
-  <div class="auth-page active" id="authPage">
-    <div class="auth-container">
-      <div class="auth-header">
-        <div class="auth-logo">📋</div>
-        <div class="auth-title">Trellod</div>
-        <div class="auth-subtitle">Organize anything, together</div>
-      </div>
+<body class="bg-slate-100 font-sans text-trello-textPrimary h-screen flex flex-col overflow-hidden select-none" x-data="trelloEngine()" @keydown.escape.window="closeAllModals()">
 
-      <div class="form-error" id="authError"></div>
+    <!-- ==================== VIEW 0: LOGIN GOOGLE SSO ==================== -->
+    <template x-if="!currentUser">
+        <div class="fixed inset-0 bg-slate-100 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 border border-slate-200 text-center space-y-6">
+                <!-- Trello Brand Logo -->
+                <div class="flex items-center justify-center space-x-2 text-trello-blue">
+                    <i class="fa-brands fa-trello text-4xl"></i>
+                    <span class="text-3xl font-extrabold tracking-tight text-trello-darkblue">Trello</span>
+                </div>
 
-      <form onsubmit="handleAuth(event)">
-        <div class="form-group hidden" id="nameGroup">
-          <label class="form-label">Full Name</label>
-          <input type="text" id="nameInput" class="form-input" placeholder="Your name">
-        </div>
+                <div class="space-y-1">
+                    <h1 class="text-xl font-bold text-trello-textPrimary">Masuk untuk melanjutkan ke Trello</h1>
+                    <p class="text-xs text-trello-textSubtle">Kelola proyek dan tugas visual Anda dengan mudah.</p>
+                </div>
 
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" id="emailInput" class="form-input" placeholder="you@example.com" required>
-        </div>
+                <!-- Google SSO Button -->
+                <div class="space-y-3 pt-2">
+                    <button @click="loginWithGoogle()" class="w-full bg-white hover:bg-slate-50 text-slate-700 font-semibold py-3 px-4 rounded-xl border border-slate-300 shadow-sm flex items-center justify-center space-x-3 transition transform active:scale-98">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span class="text-sm font-bold">Lanjutkan dengan Google</span>
+                    </button>
+                </div>
 
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" id="authBtn">Log in</button>
-        </div>
-      </form>
-
-      <div class="form-divider"><span>or</span></div>
-
-      <div class="auth-toggle">
-        <span id="authToggleText">Don't have an account?</span>
-        <a onclick="toggleAuthMode()">Sign up</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- MAIN PAGE -->
-  <div class="main-page" id="mainPage">
-    <div class="navbar">
-      <div class="navbar-left">
-        📋 Trellod
-      </div>
-      <div class="navbar-right">
-        <div class="user-profile">
-          <div class="user-avatar" id="userAvatar">D</div>
-          <div>
-            <div id="userName" style="font-weight: 600;">User</div>
-            <div id="userEmail" style="font-size: 11px; opacity: 0.8;"></div>
-          </div>
-        </div>
-        <button class="logout-btn" onclick="logout()">Sign out</button>
-      </div>
-    </div>
-
-    <!-- BOARDS VIEW -->
-    <div class="container" id="boardsView">
-      <div class="boards-header">
-        <div class="boards-title">Your Boards</div>
-        <div class="boards-subtitle">Welcome back! Here are your workspaces</div>
-      </div>
-
-      <div class="create-board-section">
-        <div style="color: white; font-weight: 600; font-size: 14px; margin-bottom: 12px;">Create board</div>
-        <div class="create-board-form">
-          <input type="text" id="boardInput" class="create-board-input" placeholder="Board name...">
-          <button class="btn btn-primary" onclick="createBoard()" style="flex: 0 0 auto; padding: 10px 24px;">Create</button>
-        </div>
-      </div>
-
-      <div class="boards-grid" id="boardsList"></div>
-    </div>
-
-    <!-- BOARD VIEW -->
-    <div id="boardDetail" class="board-view">
-      <div class="board-header">
-        <div style="display: flex; gap: 12px; align-items: center;">
-          <button class="back-btn" onclick="goToBoards()">← Back</button>
-          <div class="board-title" id="boardTitleDisplay"></div>
-        </div>
-      </div>
-      <div class="board-content" id="board"></div>
-    </div>
-  </div>
-
-  <script>
-    const USERS_KEY = 'trello-users';
-    const CURRENT_USER_KEY = 'trello-current-user';
-    const BOARDS_KEY = 'trello-boards';
-
-    // Production: Ganti dengan URL Vercel setelah deploy
-    // const API = 'https://trello-clone.vercel.app/api';
-    // Local: Ganti dengan localhost jika development
-    // const API = 'http://localhost:5000/api';
-
-    let isLoginMode = true;
-    let currentUser = null;
-    let currentBoardId = null;
-    let draggedCard = null;
-    let draggedFromList = null;
-
-    function init() {
-      const user = localStorage.getItem(CURRENT_USER_KEY);
-      if (user) {
-        currentUser = JSON.parse(user);
-        showMainPage();
-        loadBoards();
-      }
-    }
-
-    function toggleAuthMode() {
-      isLoginMode = !isLoginMode;
-      document.getElementById('nameGroup').classList.toggle('hidden');
-      document.getElementById('authBtn').textContent = isLoginMode ? 'Log in' : 'Sign up';
-      document.getElementById('authToggleText').textContent = isLoginMode ? "Don't have an account?" : 'Already have an account?';
-      document.getElementById('authError').classList.remove('show');
-    }
-
-    function handleAuth(e) {
-      e.preventDefault();
-      const email = document.getElementById('emailInput').value.trim();
-      const password = document.getElementById('passwordInput').value.trim();
-      const name = document.getElementById('nameInput').value.trim();
-
-      if (!email || !password) {
-        showAuthError('Please fill in all fields');
-        return;
-      }
-
-      if (!isLoginMode && !name) {
-        showAuthError('Please enter your name');
-        return;
-      }
-
-      let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
-
-      if (isLoginMode) {
-        const user = users.find(u => u.email === email && u.password === password);
-        if (!user) {
-          showAuthError('Invalid email or password');
-          return;
-        }
-        currentUser = { id: user.id, email: user.email, name: user.name };
-      } else {
-        if (users.find(u => u.email === email)) {
-          showAuthError('Email already registered');
-          return;
-        }
-        const newUser = { id: Date.now(), email, password, name };
-        users.push(newUser);
-        localStorage.setItem(USERS_KEY, JSON.stringify(users));
-        currentUser = { id: newUser.id, email: newUser.email, name: newUser.name };
-      }
-
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
-      showMainPage();
-      loadBoards();
-    }
-
-    function showAuthError(msg) {
-      const err = document.getElementById('authError');
-      err.textContent = '⚠️ ' + msg;
-      err.classList.add('show');
-      setTimeout(() => err.classList.remove('show'), 3000);
-    }
-
-    function showMainPage() {
-      document.getElementById('authPage').classList.remove('active');
-      document.getElementById('mainPage').classList.add('active');
-      document.getElementById('userName').textContent = currentUser.name;
-      document.getElementById('userEmail').textContent = currentUser.email;
-      document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
-    }
-
-    function logout() {
-      if (confirm('Sign out?')) {
-        localStorage.removeItem(CURRENT_USER_KEY);
-        currentUser = null;
-        isLoginMode = true;
-        document.getElementById('authPage').classList.add('active');
-        document.getElementById('mainPage').classList.remove('active');
-        document.getElementById('emailInput').value = '';
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('nameInput').value = '';
-        document.getElementById('authError').classList.remove('show');
-      }
-    }
-
-    function loadBoards() {
-      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
-      const userBoards = boards.filter(b => b.userId === currentUser.id);
-      renderBoardsList(userBoards);
-    }
-
-    function renderBoardsList(boards) {
-      const list = document.getElementById('boardsList');
-      if (boards.length === 0) {
-        list.innerHTML = `
-          <div class="empty-boards">
-            <div class="empty-boards-icon">📭</div>
-            <div class="empty-boards-title">No boards yet</div>
-            <div class="empty-boards-text">Create a board above to get started</div>
-          </div>
-        `;
-        return;
-      }
-
-      list.innerHTML = boards.map(b => `
-        <div class="board-item" onclick="openBoard(${b.id})">
-          <div class="board-item-title">${escapeHtml(b.title)}</div>
-          <div class="board-item-meta">
-            <span>📊 ${b.lists.length} lists</span>
-            <span>🗂️ ${b.lists.reduce((sum, l) => sum + l.cards.length, 0)} cards</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function createBoard() {
-      const input = document.getElementById('boardInput');
-      const title = input.value.trim();
-      if (!title) return;
-
-      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
-      const newBoard = {
-        id: Date.now(),
-        userId: currentUser.id,
-        title,
-        lists: [
-          { id: 1, title: 'To Do', cards: [] },
-          { id: 2, title: 'In Progress', cards: [] },
-          { id: 3, title: 'Done', cards: [] }
-        ]
-      };
-      boards.push(newBoard);
-      localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
-      input.value = '';
-      loadBoards();
-    }
-
-    function openBoard(boardId) {
-      currentBoardId = boardId;
-      document.getElementById('boardsView').style.display = 'none';
-      document.getElementById('boardDetail').classList.add('active');
-
-      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
-      const board = boards.find(b => b.id === boardId);
-      if (board) {
-        document.getElementById('boardTitleDisplay').textContent = board.title;
-        renderBoard(board);
-      }
-    }
-
-    function goToBoards() {
-      currentBoardId = null;
-      document.getElementById('boardsView').style.display = 'block';
-      document.getElementById('boardDetail').classList.remove('active');
-      loadBoards();
-    }
-
-    function renderBoard(board) {
-      const boardEl = document.getElementById('board');
-      boardEl.innerHTML = '';
-
-      board.lists.forEach(list => {
-        const listEl = document.createElement('div');
-        listEl.className = 'list';
-
-        let cardsHtml = '';
-        list.cards.forEach(card => {
-          cardsHtml += `
-            <div class="card" draggable="true" data-card-id="${card.id}" data-list-id="${list.id}">
-              <div class="card-title">${escapeHtml(card.text)}</div>
-              <button class="card-delete" onclick="deleteCard(${list.id}, ${card.id})">×</button>
+                <div class="text-[11px] text-slate-400 pt-4 border-t border-slate-100">
+                    Dengan melanjutkan, Anda menyetujui <a href="#" class="text-blue-600 underline">Ketentuan Layanan</a> & <a href="#" class="text-blue-600 underline">Kebijakan Privasi</a> Trello.
+                </div>
             </div>
-          `;
-        });
+        </div>
+    </template>
 
-        listEl.innerHTML = `
-          <div class="list-header">
-            <div class="list-title">${escapeHtml(list.title)}</div>
-            <button class="list-delete" onclick="deleteList(${list.id})">⋯</button>
-          </div>
-          <div class="list-cards" id="list-${list.id}">
-            ${cardsHtml || '<div class="no-cards">No cards yet</div>'}
-          </div>
-          <div class="add-card-section">
-            <button class="add-card-btn" onclick="toggleAddCard(${list.id})">+ Add card</button>
-            <div class="add-card-form" id="form-${list.id}">
-              <input type="text" class="add-card-input" id="input-${list.id}" placeholder="Enter card title...">
-              <div class="add-card-actions">
-                <button type="button" class="add-card-save" onclick="addCard(${list.id})">Add</button>
-                <button type="button" class="add-card-cancel" onclick="toggleAddCard(${list.id})">Cancel</button>
-              </div>
+    <!-- ==================== MAIN APP (AFTER LOGIN) ==================== -->
+    <template x-if="currentUser">
+        <div class="flex flex-col h-full">
+            <!-- TOP NAVIGATION BAR -->
+            <header class="bg-[#0052CC] text-white h-12 px-3 flex items-center justify-between shrink-0 shadow-sm z-30">
+                <div class="flex items-center space-x-1.5">
+                    <button class="hover:bg-white/20 p-2 rounded text-white/80 hover:text-white transition">
+                        <i class="fa-solid fa-grip text-base"></i>
+                    </button>
+                    <button @click="currentView = 'workspace'" class="hover:bg-white/20 px-2 py-1.5 rounded transition font-bold text-lg flex items-center space-x-2">
+                        <i class="fa-brands fa-trello"></i>
+                        <span class="tracking-tight">Trello</span>
+                    </button>
+
+                    <div class="hidden md:flex items-center space-x-1 pl-2">
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="hover:bg-white/20 px-3 py-1.5 rounded text-sm font-semibold transition flex items-center">
+                                Workspace <i class="fa-solid fa-chevron-down text-[10px] ml-1.5 opacity-80"></i>
+                            </button>
+                            <div x-show="open" @click.outside="open = false" class="absolute left-0 mt-2 w-64 bg-white text-trello-textPrimary rounded-lg shadow-xl border border-slate-200 py-2 z-50 text-sm">
+                                <div class="px-4 py-1 text-xs font-bold text-trello-textSubtle uppercase">Workspace Anda</div>
+                                <div class="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center space-x-2">
+                                    <div class="w-6 h-6 rounded bg-gradient-to-tr from-blue-500 to-indigo-600 text-white font-bold text-xs flex items-center justify-center" x-text="currentUser.initials"></div>
+                                    <span class="font-medium" x-text="currentUser.name"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button @click="openCreateModal()" class="bg-white/20 hover:bg-white/30 text-white font-semibold text-sm px-3 py-1.5 rounded transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>Buat</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Nav Tools -->
+                <div class="flex items-center space-x-2">
+                    <div class="relative">
+                        <input type="text" x-model="searchFilter" placeholder="Cari board..." class="bg-white/20 hover:bg-white/30 focus:bg-white focus:text-trello-textPrimary placeholder-white/70 focus:placeholder-slate-400 text-sm rounded-md px-3 py-1.5 pl-8 outline-none w-32 sm:w-48 transition-all">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-xs text-white/70"></i>
+                    </div>
+
+                    <label class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-xs transition cursor-pointer" title="Impor JSON">
+                        <i class="fa-solid fa-upload"></i>
+                        <input type="file" accept=".json" @change="importData($event)" class="hidden">
+                    </label>
+
+                    <button @click="exportData()" title="Ekspor JSON" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-xs transition">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+
+                    <!-- User Profile & Logout Dropdown -->
+                    <div class="relative" x-data="{ profileMenu: false }">
+                        <button @click="profileMenu = !profileMenu" class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 text-white font-bold text-xs flex items-center justify-center ring-2 ring-white/30 hover:scale-105 transition" x-text="currentUser.initials" :title="currentUser.email">
+                        </button>
+                        <div x-show="profileMenu" @click.outside="profileMenu = false" class="absolute right-0 mt-2 w-56 bg-white text-trello-textPrimary rounded-xl shadow-2xl border border-slate-200 py-2 z-50 text-sm">
+                            <div class="px-4 py-2 border-b border-slate-100">
+                                <p class="font-bold text-xs" x-text="currentUser.name"></p>
+                                <p class="text-[11px] text-slate-500 truncate" x-text="currentUser.email"></p>
+                            </div>
+                            <button @click="logout()" class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 font-semibold text-xs flex items-center space-x-2">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>Keluar Akun Google</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT AREA -->
+            <main class="flex-1 overflow-hidden flex flex-col relative">
+
+                <!-- VIEW 1: WORKSPACE HOMEPAGE -->
+                <template x-if="currentView === 'workspace'">
+                    <div class="flex-1 overflow-y-auto p-6 md:p-12 max-w-6xl mx-auto w-full">
+
+                        <div class="flex items-center space-x-4 border-b pb-6 mb-8 border-slate-200">
+                            <div class="w-16 h-16 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-700 text-white font-extrabold text-2xl flex items-center justify-center shadow-lg" x-text="currentUser.initials">
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-bold text-trello-textPrimary flex items-center space-x-2">
+                                    <span x-text="currentUser.name + ' Workspace'"></span>
+                                    <i class="fa-solid fa-lock text-sm text-slate-400" title="Privat"></i>
+                                </h1>
+                                <p class="text-sm text-trello-textSubtle" x-text="currentUser.email"></p>
+                            </div>
+                        </div>
+
+                        <!-- Starred Boards -->
+                        <div x-show="starredBoards.length > 0" class="mb-10">
+                            <h2 class="text-base font-bold text-trello-textPrimary flex items-center space-x-2 mb-4">
+                                <i class="fa-regular fa-star text-amber-500"></i>
+                                <span>Board Bintang</span>
+                            </h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <template x-for="b in starredBoards" :key="b.id">
+                                    <div @click="selectBoard(b.id)" :class="b.bg" class="h-24 rounded-lg p-3 text-white font-bold cursor-pointer relative shadow hover:brightness-105 transition flex flex-col justify-between group bg-cover bg-center">
+                                        <span class="text-sm drop-shadow-md truncate" x-text="b.title"></span>
+                                        <button @click.stop="toggleStar(b.id)" class="absolute top-2 right-2 text-amber-400 hover:scale-125 transition">
+                                            <i class="fa-solid fa-star"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- All Boards -->
+                        <div>
+                            <h2 class="text-base font-bold text-trello-textPrimary flex items-center space-x-2 mb-4">
+                                <i class="fa-regular fa-user"></i>
+                                <span>Semua Board</span>
+                            </h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                <template x-for="b in filteredBoards" :key="b.id">
+                                    <div @click="selectBoard(b.id)" :class="b.bg" class="h-24 rounded-lg p-3 text-white font-bold cursor-pointer relative shadow hover:brightness-105 transition flex flex-col justify-between group bg-cover bg-center">
+                                        <span class="text-sm drop-shadow-md truncate" x-text="b.title"></span>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[11px] font-normal opacity-90 drop-shadow" x-text="b.lists.length + ' Daftar'"></span>
+                                            <button @click.stop="toggleStar(b.id)" class="opacity-0 group-hover:opacity-100 hover:scale-125 transition">
+                                                <i :class="b.starred ? 'fa-solid text-amber-400' : 'fa-regular text-white'" class="fa-star"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <div @click="openCreateModal()" class="h-24 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 flex flex-col items-center justify-center cursor-pointer transition font-medium text-sm border-2 border-dashed border-slate-300">
+                                    <span>+ Buat board baru</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </template>
+
+                <!-- VIEW 2: KANBAN BOARD VIEW -->
+                <template x-if="currentView === 'board' && activeBoard">
+                    <div :class="activeBoard.bg" class="flex-1 flex flex-col h-full overflow-hidden bg-cover bg-center">
+
+                        <!-- Board Top Toolbar Header -->
+                        <div class="bg-trello-boardHeader backdrop-blur-md px-4 py-2 flex flex-wrap items-center justify-between text-white shrink-0 z-10 gap-2">
+                            <div class="flex items-center space-x-2 flex-wrap">
+                                <button @click="currentView = 'workspace'" class="hover:bg-white/20 p-1.5 rounded transition text-xs font-semibold flex items-center space-x-1" title="Kembali ke Workspace">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+
+                                <input type="text" x-model="activeBoard.title" @change="saveData()" class="text-lg font-bold bg-transparent hover:bg-white/20 focus:bg-white focus:text-trello-textPrimary px-2 py-0.5 rounded outline-none transition">
+
+                                <button @click="toggleStar(activeBoard.id)" class="hover:bg-white/20 p-1.5 rounded transition">
+                                    <i :class="activeBoard.starred ? 'fa-solid text-amber-400' : 'fa-regular'" class="fa-star text-sm"></i>
+                                </button>
+
+                                <span class="opacity-30">|</span>
+
+                                <div class="relative">
+                                    <input type="text" x-model="boardCardSearch" placeholder="Filter kartu..." class="bg-white/20 hover:bg-white/30 focus:bg-white focus:text-trello-textPrimary placeholder-white/70 focus:placeholder-slate-400 text-xs rounded px-2.5 py-1 outline-none w-32 sm:w-40 transition">
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                                <button @click="showBgMenu = true" class="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-md text-xs font-semibold transition flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-palette"></i>
+                                    <span>Ganti Tema</span>
+                                </button>
+
+                                <button @click="deleteBoard(activeBoard.id)" class="bg-red-500/80 hover:bg-red-600 text-white p-1.5 rounded-md text-xs transition" title="Hapus Board">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- BOARD COLUMNS AREA -->
+                        <div class="flex-1 overflow-x-auto p-3 flex items-start space-x-3 select-none">
+
+                            <template x-for="(list, lIndex) in activeBoard.lists" :key="list.id">
+                                <div class="bg-trello-listbg w-72 rounded-xl p-2.5 flex flex-col shrink-0 max-h-full shadow-lg border border-slate-200/50"
+                                     draggable="true"
+                                     @dragstart="handleListDragStart($event, lIndex)"
+                                     @dragover.prevent
+                                     @drop="handleDrop($event, lIndex)">
+
+                                    <div class="flex items-center justify-between px-1 mb-2">
+                                        <input type="text" x-model="list.title" @change="saveData()" class="font-bold text-sm text-trello-textPrimary bg-transparent hover:bg-white focus:bg-white focus:ring-2 focus:ring-blue-500 px-1.5 py-0.5 rounded outline-none w-full mr-2 transition">
+                                        <button @click="deleteList(lIndex)" class="text-trello-textSubtle hover:text-red-600 p-1 hover:bg-trello-hoverList rounded text-xs transition">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="overflow-y-auto list-scrollbar space-y-2 px-0.5 py-1 flex-1">
+                                        <template x-for="(card, cIndex) in filterCards(list.cards)" :key="card.id">
+                                            <div @click="openCardDetail(lIndex, getOriginalCardIndex(list, card.id))"
+                                                 draggable="true"
+                                                 @dragstart.stop="handleCardDragStart($event, lIndex, getOriginalCardIndex(list, card.id))"
+                                                 class="bg-trello-cardbg p-3 rounded-lg shadow-sm hover:shadow-md border border-slate-200 cursor-pointer group relative transition">
+
+                                                <div x-show="card.coverColor" :class="card.coverColor" class="h-4 -mx-3 -mt-3 mb-2 rounded-t-lg"></div>
+
+                                                <div class="flex flex-wrap gap-1 mb-1.5" x-show="card.labels && card.labels.length > 0">
+                                                    <template x-for="lbl in card.labels">
+                                                        <span :class="lbl.color" class="h-2.5 min-w-[2rem] px-1.5 rounded-full text-[9px] text-white font-bold inline-flex items-center justify-center" x-text="lbl.text"></span>
+                                                    </template>
+                                                </div>
+
+                                                <div class="text-sm font-semibold text-trello-textPrimary mb-2 leading-snug" x-text="card.title"></div>
+
+                                                <div class="flex items-center justify-between text-[11px] text-trello-textSubtle font-medium">
+                                                    <div class="flex items-center space-x-2.5">
+                                                        <span x-show="card.description" title="Memiliki deskripsi"><i class="fa-solid fa-align-left text-xs"></i></span>
+                                                        <span x-show="card.dueDate" :class="card.dueDateCompleted ? 'bg-emerald-100 text-emerald-800' : (isOverdue(card.dueDate) ? 'bg-red-100 text-red-700' : 'bg-slate-100')" class="px-1.5 py-0.5 rounded flex items-center space-x-1">
+                                                            <i class="fa-regular fa-clock"></i>
+                                                            <span x-text="formatShortDate(card.dueDate)"></span>
+                                                        </span>
+                                                        <span x-show="card.checklists && card.checklists.length > 0" class="flex items-center space-x-1">
+                                                            <i class="fa-regular fa-square-check"></i>
+                                                            <span x-text="getChecklistBadgeText(card)"></span>
+                                                        </span>
+                                                        <span x-show="card.comments && card.comments.length > 0" class="flex items-center space-x-1">
+                                                            <i class="fa-regular fa-comment"></i>
+                                                            <span x-text="card.comments.length"></span>
+                                                        </span>
+                                                    </div>
+                                                    <div class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[9px] flex items-center justify-center" x-text="currentUser.initials"></div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <div class="mt-2 pt-1 border-t border-slate-200/60">
+                                        <template x-if="activeAddingCardListIndex !== lIndex">
+                                            <button @click="activeAddingCardListIndex = lIndex; newCardTitleInput = ''" class="w-full text-left text-xs font-semibold text-trello-textSubtle hover:text-trello-textPrimary hover:bg-trello-hoverList p-2 rounded-lg transition flex items-center space-x-2">
+                                                <i class="fa-solid fa-plus"></i>
+                                                <span>Tambah kartu</span>
+                                            </button>
+                                        </template>
+                                        <template x-if="activeAddingCardListIndex === lIndex">
+                                            <div class="space-y-2">
+                                                <textarea x-model="newCardTitleInput" @keydown.enter.prevent="createCard(lIndex)" placeholder="Masukkan judul kartu..." class="w-full bg-white p-2 rounded-lg text-sm border-2 border-trello-blue outline-none resize-none shadow-sm" rows="2" autofocus></textarea>
+                                                <div class="flex items-center space-x-2">
+                                                    <button @click="createCard(lIndex)" class="bg-trello-blue hover:bg-trello-nav text-white px-3 py-1.5 rounded text-xs font-bold transition shadow">
+                                                        Tambah Kartu
+                                                    </button>
+                                                    <button @click="activeAddingCardListIndex = null" class="text-trello-textSubtle hover:text-slate-800 p-1">
+                                                        <i class="fa-solid fa-xmark text-lg"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                </div>
+                            </template>
+
+                            <div class="w-72 shrink-0">
+                                <template x-if="!isAddingList">
+                                    <button @click="isAddingList = true; newListTitleInput = ''" class="w-full bg-white/20 hover:bg-white/30 text-white p-3 rounded-xl text-sm font-bold transition flex items-center space-x-2 backdrop-blur-md shadow-md">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Tambah daftar baru</span>
+                                    </button>
+                                </template>
+                                <template x-if="isAddingList">
+                                    <div class="bg-trello-listbg p-3 rounded-xl shadow-xl space-y-2">
+                                        <input type="text" x-model="newListTitleInput" @keydown.enter.prevent="createList()" placeholder="Masukkan judul daftar..." class="w-full bg-white p-2 rounded-lg text-sm border-2 border-trello-blue outline-none" autofocus>
+                                        <div class="flex items-center space-x-2">
+                                            <button @click="createList()" class="bg-trello-blue hover:bg-trello-nav text-white px-3 py-1.5 rounded text-xs font-bold transition shadow">
+                                                Tambah Daftar
+                                            </button>
+                                            <button @click="isAddingList = false" class="text-slate-500 hover:text-slate-800 p-1">
+                                                <i class="fa-solid fa-xmark text-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </template>
+
+            </main>
+        </div>
+    </template>
+
+    <!-- CARD DETAIL MODAL -->
+    <div x-show="modalCardOpen" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-xs">
+        <div @click.outside="closeCardModal()" class="bg-[#F7F8F9] rounded-2xl max-w-3xl w-full p-6 relative shadow-2xl max-h-[92vh] overflow-y-auto text-trello-textPrimary">
+
+            <button @click="closeCardModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 w-8 h-8 rounded-full bg-slate-200/80 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <template x-if="selectedCard">
+                <div class="space-y-6">
+
+                    <div x-show="selectedCard.coverColor" :class="selectedCard.coverColor" class="h-28 -mx-6 -mt-6 mb-4 rounded-t-2xl relative">
+                        <button @click="selectedCard.coverColor = ''; saveData()" class="absolute bottom-2 right-2 bg-black/40 hover:bg-black/60 text-white px-2.5 py-1 rounded text-xs font-semibold">Hapus Sampul</button>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <i class="fa-regular fa-window-maximize text-trello-textSubtle mt-1.5 text-xl"></i>
+                        <div class="flex-1">
+                            <input type="text" x-model="selectedCard.title" @change="saveData()" class="text-xl font-bold text-trello-textPrimary w-full bg-transparent hover:bg-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 rounded px-2 py-1 transition">
+                            <p class="text-xs text-trello-textSubtle px-2 mt-0.5">di daftar <span class="underline font-semibold" x-text="selectedListTitle"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                        <div class="md:col-span-3 space-y-6">
+
+                            <div class="flex flex-wrap gap-4 items-start pl-8">
+                                <div>
+                                    <h4 class="text-xs font-bold text-trello-textSubtle uppercase tracking-wide mb-1.5">Anggota</h4>
+                                    <div class="flex items-center space-x-1">
+                                        <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-xs" x-text="currentUser?.initials"></div>
+                                    </div>
+                                </div>
+
+                                <div x-show="selectedCard.labels && selectedCard.labels.length > 0">
+                                    <h4 class="text-xs font-bold text-trello-textSubtle uppercase tracking-wide mb-1.5">Label</h4>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        <template x-for="lbl in selectedCard.labels">
+                                            <span :class="lbl.color" class="px-2.5 py-1 rounded text-white text-xs font-bold shadow-xs" x-text="lbl.text || 'Label'"></span>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div x-show="selectedCard.dueDate">
+                                    <h4 class="text-xs font-bold text-trello-textSubtle uppercase tracking-wide mb-1.5">Tenggat Waktu</h4>
+                                    <button @click="selectedCard.dueDateCompleted = !selectedCard.dueDateCompleted; saveData()" :class="selectedCard.dueDateCompleted ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-slate-200 text-slate-800'" class="px-3 py-1 rounded border text-xs font-bold flex items-center space-x-2 transition">
+                                        <i :class="selectedCard.dueDateCompleted ? 'fa-solid fa-square-check text-emerald-600' : 'fa-regular fa-square'" class="text-sm"></i>
+                                        <span x-text="formatFullDate(selectedCard.dueDate)"></span>
+                                        <span x-show="selectedCard.dueDateCompleted" class="bg-emerald-600 text-white px-1.5 py-0.2 text-[10px] rounded">Selesai</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-align-left text-trello-textSubtle text-lg"></i>
+                                    <h3 class="text-sm font-bold text-trello-textPrimary">Deskripsi</h3>
+                                </div>
+                                <div class="pl-8">
+                                    <textarea x-model="selectedCard.description" @change="saveData()" placeholder="Tambahkan deskripsi lebih detail..." class="w-full bg-white p-3 rounded-lg text-sm border border-slate-300 focus:border-trello-blue outline-none shadow-xs resize-none h-28"></textarea>
+                                </div>
+                            </div>
+
+                            <template x-for="(cl, clIdx) in selectedCard.checklists" :key="clIdx">
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fa-regular fa-square-check text-trello-textSubtle text-lg"></i>
+                                            <h3 class="text-sm font-bold text-trello-textPrimary" x-text="cl.title"></h3>
+                                        </div>
+                                        <button @click="deleteChecklist(clIdx)" class="text-xs text-slate-400 hover:text-red-600 font-semibold">Hapus</button>
+                                    </div>
+
+                                    <div class="pl-8 space-y-2">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="text-xs font-bold text-trello-textSubtle w-8" x-text="getChecklistPercent(cl) + '%'"></span>
+                                            <div class="flex-1 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                                <div class="bg-trello-blue h-full transition-all duration-300" :style="'width: ' + getChecklistPercent(cl) + '%'"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-2 pt-1">
+                                            <template x-for="(item, itemIdx) in cl.items" :key="itemIdx">
+                                                <div class="flex items-center justify-between hover:bg-slate-200/50 p-1.5 rounded-lg group">
+                                                    <label class="flex items-center space-x-3 cursor-pointer flex-1 text-sm">
+                                                        <input type="checkbox" x-model="item.completed" @change="saveData()" class="w-4 h-4 rounded text-trello-blue focus:ring-0">
+                                                        <span :class="item.completed ? 'line-through text-slate-400' : 'text-trello-textPrimary'" x-text="item.text"></span>
+                                                    </label>
+                                                    <button @click="deleteChecklistItem(clIdx, itemIdx)" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 text-xs px-2">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <div class="flex space-x-2 pt-2" x-data="{ itemText: '' }">
+                                            <input type="text" x-model="itemText" @keydown.enter.prevent="if(itemText.trim()){ addChecklistItem(clIdx, itemText); itemText = ''; }" placeholder="Tambah item baru..." class="flex-1 bg-white px-3 py-1.5 rounded-md text-sm border border-slate-300 outline-none">
+                                            <button @click="if(itemText.trim()){ addChecklistItem(clIdx, itemText); itemText = ''; }" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-1.5 rounded-md text-xs font-bold transition">Tambah</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-regular fa-comments text-trello-textSubtle text-lg"></i>
+                                    <h3 class="text-sm font-bold text-trello-textPrimary">Aktivitas & Komentar</h3>
+                                </div>
+                                <div class="pl-8 space-y-4">
+                                    <div class="flex space-x-3">
+                                        <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0" x-text="currentUser?.initials"></div>
+                                        <div class="flex-1 space-y-2">
+                                            <textarea x-model="newCommentInput" placeholder="Tulis komentar..." class="w-full bg-white p-3 rounded-lg text-sm border border-slate-300 focus:border-trello-blue outline-none shadow-xs resize-none" rows="2"></textarea>
+                                            <button @click="postComment()" class="bg-trello-blue hover:bg-trello-nav text-white px-4 py-1.5 rounded-md text-xs font-bold shadow transition">Simpan Komentar</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <template x-for="cmt in selectedCard.comments" :key="cmt.id">
+                                            <div class="flex space-x-3 text-sm">
+                                                <div class="w-8 h-8 rounded-full bg-slate-500 text-white font-bold text-xs flex items-center justify-center shrink-0" x-text="cmt.authorInitials || 'U'"></div>
+                                                <div class="flex-1 bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                                                    <div class="flex items-center justify-between mb-1">
+                                                        <span class="font-bold text-xs text-trello-textPrimary" x-text="cmt.author"></span>
+                                                        <span class="text-[10px] text-slate-400" x-text="cmt.date"></span>
+                                                    </div>
+                                                    <p class="text-trello-textPrimary text-sm leading-normal" x-text="cmt.text"></p>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-bold text-trello-textSubtle uppercase tracking-wider">Tambahkan ke Kartu</h4>
+
+                            <div class="space-y-2">
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-md text-xs font-semibold flex items-center space-x-2 transition">
+                                        <i class="fa-solid fa-tag"></i>
+                                        <span>Label</span>
+                                    </button>
+                                    <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-1 w-64 bg-white p-3 rounded-xl shadow-2xl border border-slate-200 z-50 space-y-2">
+                                        <h5 class="text-xs font-bold text-slate-600">Pilih Label</h5>
+                                        <div class="space-y-1.5">
+                                            <div @click="toggleCardLabel('bg-emerald-500', 'Prioritas Rendah')" class="bg-emerald-500 text-white p-2 rounded text-xs font-bold cursor-pointer hover:brightness-110">Hijau - Rendah</div>
+                                            <div @click="toggleCardLabel('bg-amber-500', 'Sedang')" class="bg-amber-500 text-white p-2 rounded text-xs font-bold cursor-pointer hover:brightness-110">Kuning - Sedang</div>
+                                            <div @click="toggleCardLabel('bg-orange-500', 'Tinggi')" class="bg-orange-500 text-white p-2 rounded text-xs font-bold cursor-pointer hover:brightness-110">Oranye - Tinggi</div>
+                                            <div @click="toggleCardLabel('bg-red-500', 'Urgent')" class="bg-red-500 text-white p-2 rounded text-xs font-bold cursor-pointer hover:brightness-110">Merah - Urgent</div>
+                                            <div @click="toggleCardLabel('bg-blue-500', 'Fitur')" class="bg-blue-500 text-white p-2 rounded text-xs font-bold cursor-pointer hover:brightness-110">Biru - Fitur</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button @click="addChecklistToSelectedCard()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-md text-xs font-semibold flex items-center space-x-2 transition">
+                                    <i class="fa-regular fa-square-check"></i>
+                                    <span>Checklist</span>
+                                </button>
+
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-md text-xs font-semibold flex items-center space-x-2 transition">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span>Tenggat Waktu</span>
+                                    </button>
+                                    <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-1 w-64 bg-white p-4 rounded-xl shadow-2xl border border-slate-200 z-50 space-y-3">
+                                        <h5 class="text-xs font-bold text-slate-600">Atur Tanggal</h5>
+                                        <input type="date" x-model="selectedCard.dueDate" @change="saveData()" class="w-full border p-2 rounded text-xs">
+                                        <button @click="selectedCard.dueDate = ''; saveData(); open = false" class="w-full bg-red-100 hover:bg-red-200 text-red-700 py-1.5 rounded text-xs font-bold">Hapus Tenggat</button>
+                                    </div>
+                                </div>
+
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-md text-xs font-semibold flex items-center space-x-2 transition">
+                                        <i class="fa-solid fa-palette"></i>
+                                        <span>Sampul</span>
+                                    </button>
+                                    <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-1 w-64 bg-white p-3 rounded-xl shadow-2xl border border-slate-200 z-50 space-y-2">
+                                        <h5 class="text-xs font-bold text-slate-600 mb-2">Warna Sampul</h5>
+                                        <div class="grid grid-cols-4 gap-2">
+                                            <div @click="selectedCard.coverColor = 'bg-blue-600'; saveData()" class="h-8 rounded bg-blue-600 cursor-pointer"></div>
+                                            <div @click="selectedCard.coverColor = 'bg-emerald-600'; saveData()" class="h-8 rounded bg-emerald-600 cursor-pointer"></div>
+                                            <div @click="selectedCard.coverColor = 'bg-amber-600'; saveData()" class="h-8 rounded bg-amber-600 cursor-pointer"></div>
+                                            <div @click="selectedCard.coverColor = 'bg-rose-600'; saveData()" class="h-8 rounded bg-rose-600 cursor-pointer"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="text-xs font-bold text-trello-textSubtle uppercase tracking-wider pt-4">Tindakan</h4>
+                            <button @click="deleteSelectedCard()" class="w-full bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-md text-xs font-bold flex items-center space-x-2 transition">
+                                <i class="fa-solid fa-trash"></i>
+                                <span>Hapus Kartu Ini</span>
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- BACKGROUND MENU -->
+    <div x-show="showBgMenu" x-cloak class="fixed inset-0 bg-black/40 z-50 flex justify-end">
+        <div @click.outside="showBgMenu = false" class="w-80 bg-white h-full shadow-2xl p-5 flex flex-col space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-bold text-base">Ubah Latar Belakang</h3>
+                <button @click="showBgMenu = false" class="text-slate-400 hover:text-slate-800"><i class="fa-solid fa-xmark"></i></button>
             </div>
-          </div>
-        `;
 
-        const cardsContainer = listEl.querySelector(`#list-${list.id}`);
-        const cards = cardsContainer.querySelectorAll('.card');
-        cards.forEach(card => {
-          card.addEventListener('dragstart', () => {
-            draggedCard = card;
-            draggedFromList = list.id;
-            card.style.opacity = '0.5';
-          });
-          card.addEventListener('dragend', () => {
-            if (card) card.style.opacity = '1';
-          });
-        });
+            <div class="space-y-3 overflow-y-auto flex-1">
+                <h4 class="text-xs font-bold text-slate-500 uppercase">Gradasi Warna</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <div @click="setBoardBg('bg-gradient-to-br from-blue-600 to-indigo-800')" class="h-20 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-800 cursor-pointer hover:ring-4 ring-blue-400 transition"></div>
+                    <div @click="setBoardBg('bg-gradient-to-br from-emerald-600 to-teal-800')" class="h-20 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-800 cursor-pointer hover:ring-4 ring-blue-400 transition"></div>
+                    <div @click="setBoardBg('bg-gradient-to-br from-amber-600 to-orange-800')" class="h-20 rounded-lg bg-gradient-to-br from-amber-600 to-orange-800 cursor-pointer hover:ring-4 ring-blue-400 transition"></div>
+                    <div @click="setBoardBg('bg-gradient-to-br from-purple-700 to-indigo-900')" class="h-20 rounded-lg bg-gradient-to-br from-purple-700 to-indigo-900 cursor-pointer hover:ring-4 ring-blue-400 transition"></div>
+                    <div @click="setBoardBg('bg-gradient-to-br from-rose-600 to-pink-800')" class="h-20 rounded-lg bg-gradient-to-br from-rose-600 to-pink-800 cursor-pointer hover:ring-4 ring-blue-400 transition"></div>
+                    <div @click="setBoardBg('bg-gradient-to-br from-slate-700 to-slate-900')" class="h-20 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 cursor-pointer hover:ring-4 ring-blue-400 transition"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        cardsContainer.addEventListener('dragover', (e) => e.preventDefault());
-        cardsContainer.addEventListener('drop', (e) => {
-          e.preventDefault();
-          if (draggedCard) {
-            moveCard(draggedCard.dataset.cardId, draggedFromList, list.id);
-            draggedCard.style.opacity = '1';
-            draggedCard = null;
-          }
-        });
+    <!-- CREATE BOARD MODAL -->
+    <div x-show="showCreateModal" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div @click.outside="showCreateModal = false" class="bg-white rounded-2xl max-w-sm w-full p-6 relative shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-lg">Buat Board Baru</h3>
+                <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-800"><i class="fa-solid fa-xmark"></i></button>
+            </div>
 
-        boardEl.appendChild(listEl);
-      });
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Judul Board</label>
+                    <input type="text" x-model="newBoardTitle" placeholder="Misal: Proyek Website..." class="w-full border p-2.5 rounded-lg text-sm outline-none focus:border-trello-blue">
+                </div>
 
-      const addListEl = document.createElement('button');
-      addListEl.className = 'add-list-btn';
-      addListEl.textContent = '+ Add list';
-      addListEl.onclick = addListPrompt;
-      boardEl.appendChild(addListEl);
-    }
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Tema Latar</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div @click="newBoardBg = 'bg-gradient-to-br from-blue-600 to-indigo-800'" :class="newBoardBg === 'bg-gradient-to-br from-blue-600 to-indigo-800' ? 'ring-2 ring-blue-600' : ''" class="h-12 rounded bg-gradient-to-br from-blue-600 to-indigo-800 cursor-pointer"></div>
+                        <div @click="newBoardBg = 'bg-gradient-to-br from-emerald-600 to-teal-800'" :class="newBoardBg === 'bg-gradient-to-br from-emerald-600 to-teal-800' ? 'ring-2 ring-blue-600' : ''" class="h-12 rounded bg-gradient-to-br from-emerald-600 to-teal-800 cursor-pointer"></div>
+                        <div @click="newBoardBg = 'bg-gradient-to-br from-amber-600 to-orange-800'" :class="newBoardBg === 'bg-gradient-to-br from-amber-600 to-orange-800' ? 'ring-2 ring-blue-600' : ''" class="h-12 rounded bg-gradient-to-br from-amber-600 to-orange-800 cursor-pointer"></div>
+                    </div>
+                </div>
+            </div>
 
-    function toggleAddCard(listId) {
-      const form = document.getElementById(`form-${listId}`);
-      form.classList.toggle('active');
-      if (form.classList.contains('active')) {
-        document.getElementById(`input-${listId}`).focus();
-      }
-    }
+            <button @click="createNewBoard()" class="w-full bg-trello-blue hover:bg-trello-nav text-white py-2.5 rounded-lg font-bold text-sm shadow transition">Buat Board</button>
+        </div>
+    </div>
 
-    function addCard(listId) {
-      const input = document.getElementById(`input-${listId}`);
-      const text = input.value.trim();
-      if (!text) return;
+    <!-- ENGINE SCRIPT -->
+    <script>
+        function trelloEngine() {
+            return {
+                currentUser: null, // { name, email, initials }
+                currentView: 'workspace',
+                activeBoardId: null,
+                searchFilter: '',
+                boardCardSearch: '',
 
-      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
-      const board = boards.find(b => b.id === currentBoardId);
-      if (board) {
-        const list = board.lists.find(l => l.id === listId);
-        if (list) {
-          list.cards.push({ id: Date.now(), text });
-          localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
-          input.value = '';
-          toggleAddCard(listId);
-          openBoard(currentBoardId);
+                showCreateModal: false,
+                showBgMenu: false,
+                modalCardOpen: false,
+
+                newBoardTitle: '',
+                newBoardBg: 'bg-gradient-to-br from-blue-600 to-indigo-800',
+
+                newListTitleInput: '',
+                isAddingList: false,
+
+                activeAddingCardListIndex: null,
+                newCardTitleInput: '',
+
+                selectedListIndex: null,
+                selectedCardIndex: null,
+                selectedCard: null,
+                selectedListTitle: '',
+                newCommentInput: '',
+
+                draggedCardRef: null,
+                draggedListIndex: null,
+
+                boards: [
+                    {
+                        id: 'board-q3',
+                        title: 'Pengembangan Aplikasi Q3',
+                        bg: 'bg-gradient-to-br from-blue-600 to-indigo-800',
+                        starred: true,
+                        lists: [
+                            {
+                                id: 'lst-1',
+                                title: 'To Do (Akan Dikerjakan)',
+                                cards: [
+                                    {
+                                        id: 'c-1',
+                                        title: 'Perancangan Skema Database PostgreSQL',
+                                        description: 'Membuat skema relational untuk pengguna, papan, kartu, dan komentar.',
+                                        dueDate: '2026-11-12',
+                                        dueDateCompleted: false,
+                                        coverColor: 'bg-blue-600',
+                                        labels: [{ color: 'bg-blue-500', text: 'Backend' }],
+                                        members: 'DB',
+                                        checklists: [
+                                            {
+                                                title: 'Checklist ERD',
+                                                items: [
+                                                    { text: 'Tabel Users & Auth', completed: true },
+                                                    { text: 'Tabel Boards & Cards', completed: false }
+                                                ]
+                                            }
+                                        ],
+                                        comments: [
+                                            { id: 'm-1', author: 'Dito Bima', authorInitials: 'DB', text: 'Gunakan UUID sebagai primary key.', date: '05 Nov 2026' }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                id: 'lst-2',
+                                title: 'In Progress (Proses)',
+                                cards: [
+                                    {
+                                        id: 'c-3',
+                                        title: 'Fitur Google SSO Login & Drag-Drop',
+                                        description: 'Otentikasi aman menggunakan Google SSO.',
+                                        dueDate: '2026-11-08',
+                                        dueDateCompleted: true,
+                                        coverColor: 'bg-emerald-600',
+                                        labels: [{ color: 'bg-red-500', text: 'Urgent' }],
+                                        members: 'DB',
+                                        checklists: [],
+                                        comments: []
+                                    }
+                                ]
+                            },
+                            {
+                                id: 'lst-3',
+                                title: 'Done (Selesai)',
+                                cards: []
+                            }
+                        ]
+                    }
+                ],
+
+                init() {
+                    const savedUser = localStorage.getItem('trello_google_user');
+                    if (savedUser) {
+                        try {
+                            this.currentUser = JSON.parse(savedUser);
+                        } catch(e) {}
+                    }
+
+                    const localData = localStorage.getItem('trello_engine_data_v3');
+                    if (localData) {
+                        try {
+                            this.boards = JSON.parse(localData);
+                        } catch(e) {}
+                    }
+                },
+
+                loginWithGoogle() {
+                    // Simulasi autentikasi Google SSO OAuth 2.0 yang mulus
+                    const mockGoogleUser = {
+                        name: 'Dito Bima Ramadhan',
+                        email: 'ditobima@gmail.com',
+                        initials: 'DB'
+                    };
+                    this.currentUser = mockGoogleUser;
+                    localStorage.setItem('trello_google_user', JSON.stringify(mockGoogleUser));
+                },
+
+                logout() {
+                    this.currentUser = null;
+                    localStorage.removeItem('trello_google_user');
+                },
+
+                saveData() {
+                    localStorage.setItem('trello_engine_data_v3', JSON.stringify(this.boards));
+                },
+
+                closeAllModals() {
+                    this.showCreateModal = false;
+                    this.showBgMenu = false;
+                    this.modalCardOpen = false;
+                },
+
+                get starredBoards() {
+                    return this.boards.filter(b => b.starred);
+                },
+
+                get filteredBoards() {
+                    if (!this.searchFilter.trim()) return this.boards;
+                    const q = this.searchFilter.toLowerCase();
+                    return this.boards.filter(b => b.title.toLowerCase().includes(q));
+                },
+
+                get activeBoard() {
+                    return this.boards.find(b => b.id === this.activeBoardId);
+                },
+
+                selectBoard(id) {
+                    this.activeBoardId = id;
+                    this.currentView = 'board';
+                },
+
+                toggleStar(id) {
+                    const b = this.boards.find(item => item.id === id);
+                    if (b) {
+                        b.starred = !b.starred;
+                        this.saveData();
+                    }
+                },
+
+                openCreateModal() {
+                    this.newBoardTitle = '';
+                    this.showCreateModal = true;
+                },
+
+                createNewBoard() {
+                    if (!this.newBoardTitle.trim()) return;
+                    const nb = {
+                        id: 'board-' + Date.now(),
+                        title: this.newBoardTitle.trim(),
+                        bg: this.newBoardBg,
+                        starred: false,
+                        lists: [
+                            { id: 'l-' + Date.now() + '-1', title: 'To Do', cards: [] },
+                            { id: 'l-' + Date.now() + '-2', title: 'In Progress', cards: [] },
+                            { id: 'l-' + Date.now() + '-3', title: 'Done', cards: [] }
+                        ]
+                    };
+                    this.boards.push(nb);
+                    this.saveData();
+                    this.showCreateModal = false;
+                    this.selectBoard(nb.id);
+                },
+
+                deleteBoard(id) {
+                    if (confirm('Hapus board ini secara permanen?')) {
+                        this.boards = this.boards.filter(b => b.id !== id);
+                        this.saveData();
+                        this.currentView = 'workspace';
+                    }
+                },
+
+                setBoardBg(bgClass) {
+                    if (this.activeBoard) {
+                        this.activeBoard.bg = bgClass;
+                        this.saveData();
+                    }
+                },
+
+                createList() {
+                    if (!this.newListTitleInput.trim() || !this.activeBoard) return;
+                    this.activeBoard.lists.push({
+                        id: 'lst-' + Date.now(),
+                        title: this.newListTitleInput.trim(),
+                        cards: []
+                    });
+                    this.newListTitleInput = '';
+                    this.isAddingList = false;
+                    this.saveData();
+                },
+
+                deleteList(index) {
+                    if (confirm('Hapus seluruh daftar beserta kartunya?')) {
+                        this.activeBoard.lists.splice(index, 1);
+                        this.saveData();
+                    }
+                },
+
+                createCard(listIdx) {
+                    if (!this.newCardTitleInput.trim()) return;
+                    this.activeBoard.lists[listIdx].cards.push({
+                        id: 'c-' + Date.now(),
+                        title: this.newCardTitleInput.trim(),
+                        description: '',
+                        dueDate: '',
+                        dueDateCompleted: false,
+                        coverColor: '',
+                        labels: [],
+                        members: this.currentUser?.initials || 'DB',
+                        checklists: [],
+                        comments: []
+                    });
+                    this.newCardTitleInput = '';
+                    this.activeAddingCardListIndex = null;
+                    this.saveData();
+                },
+
+                filterCards(cards) {
+                    if (!this.boardCardSearch.trim()) return cards;
+                    const q = this.boardCardSearch.toLowerCase();
+                    return cards.filter(c => c.title.toLowerCase().includes(q) || (c.description && c.description.toLowerCase().includes(q)));
+                },
+
+                getOriginalCardIndex(list, cardId) {
+                    return list.cards.findIndex(c => c.id === cardId);
+                },
+
+                openCardDetail(lIdx, cIdx) {
+                    this.selectedListIndex = lIdx;
+                    this.selectedCardIndex = cIdx;
+                    this.selectedCard = this.activeBoard.lists[lIdx].cards[cIdx];
+                    this.selectedListTitle = this.activeBoard.lists[lIdx].title;
+                    this.modalCardOpen = true;
+                },
+
+                closeCardModal() {
+                    this.modalCardOpen = false;
+                    this.selectedCard = null;
+                    this.saveData();
+                },
+
+                deleteSelectedCard() {
+                    if (confirm('Hapus kartu ini?')) {
+                        this.activeBoard.lists[this.selectedListIndex].cards.splice(this.selectedCardIndex, 1);
+                        this.closeCardModal();
+                    }
+                },
+
+                handleListDragStart(e, index) {
+                    this.draggedListIndex = index;
+                },
+
+                handleCardDragStart(e, listIndex, cardIndex) {
+                    this.draggedCardRef = { listIndex, cardIndex };
+                    this.draggedListIndex = null;
+                },
+
+                handleDrop(e, targetListIndex) {
+                    if (this.draggedCardRef !== null && this.draggedCardRef !== undefined) {
+                        const { listIndex: srcListIdx, cardIndex: srcCardIdx } = this.draggedCardRef;
+                        const card = this.activeBoard.lists[srcListIdx].cards.splice(srcCardIdx, 1)[0];
+                        this.activeBoard.lists[targetListIndex].cards.push(card);
+                        this.draggedCardRef = null;
+                        this.saveData();
+                    } else if (this.draggedListIndex !== null && this.draggedListIndex !== undefined) {
+                        const list = this.activeBoard.lists.splice(this.draggedListIndex, 1)[0];
+                        this.activeBoard.lists.splice(targetListIndex, 0, list);
+                        this.draggedListIndex = null;
+                        this.saveData();
+                    }
+                },
+
+                toggleCardLabel(color, text) {
+                    if (!this.selectedCard.labels) this.selectedCard.labels = [];
+                    const idx = this.selectedCard.labels.findIndex(l => l.color === color);
+                    if (idx >= 0) {
+                        this.selectedCard.labels.splice(idx, 1);
+                    } else {
+                        this.selectedCard.labels.push({ color, text });
+                    }
+                    this.saveData();
+                },
+
+                addChecklistToSelectedCard() {
+                    if (!this.selectedCard.checklists) this.selectedCard.checklists = [];
+                    this.selectedCard.checklists.push({
+                        title: 'Checklist',
+                        items: []
+                    });
+                    this.saveData();
+                },
+
+                addChecklistItem(clIdx, text) {
+                    this.selectedCard.checklists[clIdx].items.push({
+                        text: text.trim(),
+                        completed: false
+                    });
+                    this.saveData();
+                },
+
+                deleteChecklist(clIdx) {
+                    this.selectedCard.checklists.splice(clIdx, 1);
+                    this.saveData();
+                },
+
+                deleteChecklistItem(clIdx, itemIdx) {
+                    this.selectedCard.checklists[clIdx].items.splice(itemIdx, 1);
+                    this.saveData();
+                },
+
+                getChecklistPercent(cl) {
+                    if (!cl.items || cl.items.length === 0) return 0;
+                    const done = cl.items.filter(i => i.completed).length;
+                    return Math.round((done / cl.items.length) * 100);
+                },
+
+                getChecklistBadgeText(card) {
+                    if (!card.checklists || card.checklists.length === 0) return '';
+                    let total = 0, done = 0;
+                    card.checklists.forEach(cl => {
+                        cl.items.forEach(i => {
+                            total++;
+                            if (i.completed) done++;
+                        });
+                    });
+                    return total > 0 ? `${done}/${total}` : '';
+                },
+
+                postComment() {
+                    if (!this.newCommentInput.trim()) return;
+                    if (!this.selectedCard.comments) this.selectedCard.comments = [];
+                    this.selectedCard.comments.unshift({
+                        id: 'm-' + Date.now(),
+                        author: this.currentUser?.name || 'Dito Bima',
+                        authorInitials: this.currentUser?.initials || 'DB',
+                        text: this.newCommentInput.trim(),
+                        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                    });
+                    this.newCommentInput = '';
+                    this.saveData();
+                },
+
+                formatShortDate(str) {
+                    if (!str) return '';
+                    const d = new Date(str);
+                    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                },
+
+                formatFullDate(str) {
+                    if (!str) return '';
+                    const d = new Date(str);
+                    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                },
+
+                isOverdue(str) {
+                    if (!str) return false;
+                    const d = new Date(str);
+                    const now = new Date();
+                    now.setHours(0,0,0,0);
+                    return d < now;
+                },
+
+                exportData() {
+                    const json = JSON.stringify(this.boards, null, 2);
+                    const blob = new Blob([json], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `trello-backup-${Date.now()}.json`;
+                    a.click();
+                },
+
+                importData(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const imported = JSON.parse(e.target.result);
+                            if (Array.isArray(imported)) {
+                                this.boards = imported;
+                                this.saveData();
+                                alert('Data Trello berhasil diimpor!');
+                            } else {
+                                alert('Format JSON tidak valid.');
+                            }
+                        } catch(err) {
+                            alert('Gagal membaca file JSON.');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            }
         }
-      }
-    }
-
-    function deleteCard(listId, cardId) {
-      if (!confirm('Delete this card?')) return;
-      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
-      const board = boards.find(b => b.id === currentBoardId);
-      if (board) {
-        const list = board.lists.find(l => l.id === listId);
-        if (list) {
-          list.cards = list.cards.filter(c => c.id !== cardId);
-          localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
-          openBoard(currentBoardId);
-        }
-      }
-    }
-
-    function moveCard(cardId, fromListId, toListId) {
-      if (fromListId === toListId) return;
-      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
-      const board = boards.find(b => b.id === currentBoardId);
-      if (board) {
-        const fromList = board.lists.find(l => l.id === fromListId);
-        const toList = board.lists.find(l => l.id === toListId);
-        if (fromList && toList) {
-          const card = fromList.cards.find(c => c.id === parseInt(cardId));
-          if (card) {
-            fromList.cards = fromList.cards.filter(c => c.id !== parseInt(cardId));
-            toList.cards.push(card);
-            localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
-            openBoard(currentBoardId);
-          }
-        }
-      }
-    }
-
-    function addListPrompt() {
-      const title = prompt('List name:');
-      if (title && title.trim()) {
-        const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
-        const board = boards.find(b => b.id === currentBoardId);
-        if (board) {
-          board.lists.push({ id: Date.now(), title: title.trim(), cards: [] });
-          localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
-          openBoard(currentBoardId);
-        }
-      }
-    }
-
-    function deleteList(listId) {
-      if (!confirm('Delete list and all cards?')) return;
-      const boards = JSON.parse(localStorage.getItem(BOARDS_KEY) || '[]');
-      const board = boards.find(b => b.id === currentBoardId);
-      if (board) {
-        board.lists = board.lists.filter(l => l.id !== listId);
-        localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
-        openBoard(currentBoardId);
-      }
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    init();
-  </script>
+    </script>
 </body>
 </html>

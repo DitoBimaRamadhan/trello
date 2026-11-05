@@ -1,8 +1,0 @@
-[build]
-  command = "echo 'No build needed'"
-  publish = "."
-
-[[redirects]]
-  from = "/*"
-  to = "/trello.html"
-  status = 200

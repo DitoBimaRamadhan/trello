@@ -1,27 +1,42 @@
 {
-  "name": "trello-clone",
+  "name": "trello-desktop",
   "version": "1.0.0",
-  "description": "Full-stack Trello Clone built with React, Node.js, Express, and Prisma",
-  "main": "server/index.js",
+  "description": "Trello Desktop App - Electron Wrapper",
+  "main": "main.js",
   "scripts": {
-    "start": "node server/index.js",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "nodemon server/index.js",
-    "client": "cd client && npm run dev",
-    "prisma:generate": "npx prisma generate",
-    "prisma:migrate": "npx prisma migrate dev"
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win --x64",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
   },
-  "dependencies": {
-    "@prisma/client": "^5.0.0",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.1"
+  "build": {
+    "appId": "com.trello.desktop",
+    "productName": "Trello Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "trello.html",
+      "icon.png"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icon.png"
+    }
   },
   "devDependencies": {
-    "concurrently": "^8.2.0",
-    "nodemon": "^3.0.1",
-    "prisma": "^5.0.0"
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
   }
 }

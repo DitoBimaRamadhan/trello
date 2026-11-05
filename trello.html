@@ -131,12 +131,6 @@
 
                 <!-- Right Nav Tools -->
                 <div class="flex items-center space-x-2">
-                    <!-- DIRECT .EXE DOWNLOAD BUTTON -->
-                    <button @click="downloadExeDirectly()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-md text-xs font-bold transition flex items-center space-x-1.5 shadow-sm animate-pulse" title="Download Aplikasi Desktop Windows">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Unduh Desktop App</span>
-                    </button>
-
                     <div class="relative">
                         <input type="text" x-model="searchFilter" placeholder="Cari board..." class="bg-white/20 hover:bg-white/30 focus:bg-white focus:text-trello-textPrimary placeholder-white/70 focus:placeholder-slate-400 text-sm rounded-md px-3 py-1.5 pl-8 outline-none w-28 sm:w-40 transition-all">
                         <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-xs text-white/70"></i>
@@ -166,16 +160,16 @@
                 <template x-if="currentView === 'workspace'">
                     <div class="flex-1 overflow-y-auto p-6 md:p-12 max-w-6xl mx-auto w-full">
 
-                        <!-- BANNER DOWNLOAD .EXE DIRECT -->
+                        <!-- BANNER DOWNLOAD .EXE -->
                         <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white mb-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
                             <div class="space-y-2 text-center md:text-left">
-                                <span class="bg-white/20 px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider">Aplikasi Desktop Native</span>
-                                <h2 class="text-xl md:text-2xl font-extrabold">Download Trello Sebagai Aplikasi Desktop</h2>
-                                <p class="text-xs md:text-sm text-white/90 max-w-xl">Klik tombol di bawah untuk mendownload launcher aplikasi Windows secara instan.</p>
+                                <span class="bg-white/20 px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider">Aplikasi Desktop Windows</span>
+                                <h2 class="text-xl md:text-2xl font-extrabold">Build Trello Desktop sebagai .exe</h2>
+                                <p class="text-xs md:text-sm text-white/90 max-w-xl">Clone repository ini, lalu jalankan <code class="bg-black/20 px-2 py-0.5 rounded">build.bat</code> untuk membuat installer .exe (~150MB) menggunakan Electron.</p>
                             </div>
-                            <button @click="downloadExeDirectly()" class="bg-white text-emerald-800 hover:bg-emerald-50 px-6 py-3 rounded-xl font-extrabold text-sm shadow-lg transition flex items-center space-x-2 shrink-0">
-                                <i class="fa-solid fa-download text-emerald-600"></i>
-                                <span>Download Trello-Desktop.bat</span>
+                            <a href="https://github.com/ditobima/Website-Trello" target="_blank" class="bg-white text-emerald-800 hover:bg-emerald-50 px-6 py-3 rounded-xl font-extrabold text-sm shadow-lg transition flex items-center space-x-2 shrink-0">
+                                <i class="fa-brands fa-github text-emerald-600"></i>
+                                <span>Lihat Repository</span>
                             </button>
                         </div>
 
@@ -696,32 +690,6 @@
                     a.href = URL.createObjectURL(blob);
                     a.download = `trello-backup-${Date.now()}.json`;
                     a.click();
-                },
-                // DIRECT .EXE DOWNLOAD WITH application/x-msdownload
-                downloadExeDirectly() {
-                    const batchScript = `@echo off
-title Trello Desktop Application
-color 0B
-echo ========================================================
-echo   MENJALANKAN APLIKASI TRELLO DESKTOP (NATIVE WINDOWS)
-echo ========================================================
-echo.
-echo Membuka antarmuka Trello Workspace...
-start "" "%~dp0trello.html"
-echo.
-echo Aplikasi berjalan dengan sukses! Jendela ini dapat ditutup.
-timeout /t 5 >nul
-exit`;
-
-                    const blob = new Blob([batchScript], { type: 'application/octet-stream' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'Trello-Desktop.bat';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
                 }
             }
         }

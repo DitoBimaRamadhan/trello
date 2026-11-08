@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trello - Workspace Visual & .EXE Download</title>
+    <title>Trello - Visual Workspace & Desktop App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -133,9 +133,9 @@
                 <!-- Right Nav Tools -->
                 <div class="flex items-center space-x-2">
                     <!-- DOWNLOAD BUTTON -->
-                    <button @click="downloadExeDirectly()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold transition flex items-center space-x-1 shadow-sm" title="Download Aplikasi Desktop">
+                    <button @click="downloadApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold transition flex items-center space-x-1 shadow-sm" title="Download aplikasi (HTML standalone)">
                         <i class="fa-solid fa-download text-[10px]"></i>
-                        <span>.exe</span>
+                        <span>.html</span>
                     </button>
 
                     <div class="relative">
@@ -379,6 +379,124 @@
         </div>
     </div>
 
+    <!-- CARD DETAIL MODAL -->
+    <div x-show="modalCardOpen && selectedCard" x-cloak class="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-3 sm:p-8 overflow-y-auto">
+        <div class="bg-slate-100 rounded-2xl w-full max-w-3xl shadow-2xl my-4 relative">
+            <template x-if="selectedCard">
+                <div class="p-5 space-y-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3 flex-1">
+                            <i class="fa-regular fa-square-check text-slate-500 mt-2"></i>
+                            <div class="flex-1">
+                                <p class="text-[11px] text-slate-500 font-semibold" x-text="'di ' + selectedListTitle"></p>
+                                <textarea x-model="selectedCard.title" @change="saveData()" rows="1" class="w-full bg-transparent font-bold text-xl text-trello-textPrimary p-1 -ml-1 rounded outline-none focus:bg-white resize-none"></textarea>
+                            </div>
+                        </div>
+                        <button @click="closeCardModal()" class="text-slate-500 hover:text-slate-800 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <!-- Kolom utama -->
+                        <div class="md:col-span-2 space-y-5">
+                            <div>
+                                <h4 class="text-xs font-bold text-trello-textSubtle uppercase mb-1.5">Deskripsi</h4>
+                                <textarea x-model="selectedCard.description" @change="saveData()" rows="4" placeholder="Tambah deskripsi lebih detail..." class="w-full bg-white p-3 rounded-lg text-sm border border-slate-200 outline-none focus:border-trello-blue resize-none"></textarea>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <h4 class="text-xs font-bold text-trello-textSubtle uppercase">Checklist</h4>
+                                    <button @click="addChecklistToSelectedCard()" class="text-xs font-semibold text-trello-textSubtle hover:text-trello-textPrimary hover:bg-slate-200 px-2 py-1 rounded transition">+ Checklist</button>
+                                </div>
+                                <div class="space-y-3">
+                                    <template x-for="(cl, clIdx) in (selectedCard.checklists || [])" :key="clIdx">
+                                        <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
+                                            <div class="flex items-center justify-between gap-2">
+                                                <span class="text-sm font-bold truncate" x-text="cl.title"></span>
+                                                <button @click="deleteChecklist(clIdx)" class="text-slate-400 hover:text-red-600 p-1 text-xs"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                            <div class="flex items-center space-x-2 text-[11px] text-trello-textSubtle">
+                                                <span x-text="getChecklistPercent(cl) + '%'"></span>
+                                                <div class="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-emerald-500 transition-all" :style="'width:' + getChecklistPercent(cl) + '%'"></div>
+                                                </div>
+                                            </div>
+                                            <template x-for="(item, itemIdx) in cl.items" :key="itemIdx">
+                                                <div class="flex items-center space-x-2 group">
+                                                    <input type="checkbox" x-model="item.completed" @change="saveData()" class="rounded border-slate-300 text-trello-blue focus:ring-0 cursor-pointer">
+                                                    <span class="text-sm flex-1" :class="item.completed ? 'line-through text-slate-400' : ''" x-text="item.text"></span>
+                                                    <button @click="deleteChecklistItem(clIdx, itemIdx)" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 text-xs p-1"><i class="fa-solid fa-xmark"></i></button>
+                                                </div>
+                                            </template>
+                                            <input type="text" x-model="checklistDraft[clIdx]" @keydown.enter.prevent="addChecklistItem(clIdx, checklistDraft[clIdx]); checklistDraft[clIdx] = ''" placeholder="Tambah item..." class="w-full text-sm p-2 rounded border border-slate-200 outline-none focus:border-trello-blue">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-xs font-bold text-trello-textSubtle uppercase mb-1.5">Komentar</h4>
+                                <div class="flex items-start space-x-2 mb-3">
+                                    <div class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0" x-text="currentUser.initials"></div>
+                                    <div class="flex-1 space-y-2">
+                                        <textarea x-model="newCommentInput" @keydown.enter.prevent="postComment()" rows="2" placeholder="Tulis komentar..." class="w-full bg-white p-2.5 rounded-lg text-sm border border-slate-200 outline-none focus:border-trello-blue resize-none"></textarea>
+                                        <button @click="postComment()" class="bg-trello-blue hover:bg-trello-nav text-white px-3 py-1.5 rounded text-xs font-bold transition">Simpan</button>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <template x-for="(cm, cmIdx) in (selectedCard.comments || [])" :key="cmIdx">
+                                        <div class="flex items-start space-x-2">
+                                            <div class="w-7 h-7 rounded-full bg-slate-500 text-white font-bold text-[10px] flex items-center justify-center shrink-0" x-text="cm.authorInitials"></div>
+                                            <div class="flex-1 bg-white rounded-lg border border-slate-200 p-2">
+                                                <p class="text-[11px] font-bold" x-text="cm.author + ' · ' + cm.date"></p>
+                                                <p class="text-sm whitespace-pre-wrap" x-text="cm.text"></p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar -->
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-xs font-bold text-trello-textSubtle uppercase mb-1.5">Tenggat</h4>
+                                <input type="date" x-model="selectedCard.dueDate" @change="saveData()" class="w-full bg-white p-2 rounded-lg text-sm border border-slate-200 outline-none focus:border-trello-blue">
+                                <label class="flex items-center space-x-1.5 mt-1.5 text-[11px] text-trello-textSubtle cursor-pointer">
+                                    <input type="checkbox" x-model="selectedCard.dueDateCompleted" @change="saveData()" class="rounded border-slate-300 text-emerald-600 focus:ring-0">
+                                    <span>Tenggat selesai</span>
+                                </label>
+                            </div>
+
+                            <div>
+                                <h4 class="text-xs font-bold text-trello-textSubtle uppercase mb-1.5">Label</h4>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <template x-for="lbl in labelPalette" :key="lbl.color">
+                                        <button @click="toggleCardLabel(lbl.color, lbl.text)" :class="lbl.color + ((selectedCard.labels || []).some(l => l.color === lbl.color) ? ' ring-2 ring-offset-1 ring-slate-700' : '')" class="h-6 rounded text-[10px] text-white font-bold truncate px-1" x-text="lbl.text"></button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-xs font-bold text-trello-textSubtle uppercase mb-1.5">Sampul</h4>
+                                <div class="grid grid-cols-4 gap-1.5">
+                                    <template x-for="c in coverPalette" :key="c">
+                                        <button @click="selectedCard.coverColor = selectedCard.coverColor === c ? '' : c; saveData()" :class="c + (selectedCard.coverColor === c ? ' ring-2 ring-offset-1 ring-slate-700' : '')" class="h-6 rounded"></button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <button @click="deleteSelectedCard()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs py-2 rounded-lg transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Hapus kartu</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
     <!-- ENGINE SCRIPT -->
     <script>
         function trelloEngine() {
@@ -407,6 +525,20 @@
                 selectedCard: null,
                 selectedListTitle: '',
                 newCommentInput: '',
+                checklistDraft: {},
+
+                labelPalette: [
+                    { color: 'bg-emerald-500', text: 'Selesai' },
+                    { color: 'bg-yellow-400', text: 'Penting' },
+                    { color: 'bg-orange-500', text: 'Mendesak' },
+                    { color: 'bg-red-500', text: 'Bug' },
+                    { color: 'bg-purple-500', text: 'Desain' },
+                    { color: 'bg-blue-500', text: 'Backend' }
+                ],
+                coverPalette: [
+                    'bg-blue-500', 'bg-emerald-500', 'bg-yellow-400', 'bg-orange-500',
+                    'bg-red-500', 'bg-purple-500', 'bg-slate-500', 'bg-trello-blue'
+                ],
 
                 draggedCardRef: null,
                 draggedListIndex: null,
@@ -509,6 +641,7 @@
                 },
 
                 closeAllModals() {
+                    if (this.modalCardOpen) this.saveData();
                     this.showCreateModal = false;
                     this.showBgMenu = false;
                     this.modalCardOpen = false;
@@ -640,7 +773,7 @@
                     this.saveData();
                 },
                 deleteChecklist(clIdx) { this.selectedCard.checklists.splice(clIdx, 1); this.saveData(); },
-                deleteChecklistItem(clIdx, itemIdx) { this.selectedCard.checklists[clIdx].items.splice(clIdx, 1); this.saveData(); },
+                deleteChecklistItem(clIdx, itemIdx) { this.selectedCard.checklists[clIdx].items.splice(itemIdx, 1); this.saveData(); },
                 getChecklistPercent(cl) {
                     if (!cl.items || cl.items.length === 0) return 0;
                     return Math.round((cl.items.filter(i => i.completed).length / cl.items.length) * 100);
@@ -685,21 +818,15 @@
                     a.download = `trello-backup-${Date.now()}.json`;
                     a.click();
                 },
-                downloadExeDirectly() {
-                    // Download complete HTML as self-contained app
-                    fetch('index.html')
-                        .then(r => r.text())
-                        .then(html => {
-                            const blob = new Blob([html], { type: 'text/html' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'Trello-Desktop.html';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
-                        });
+                downloadApp() {
+                    // ponytail: fetch self + download as standalone file. Works on http(s), breaks on file://.
+                    fetch(location.href).then(r => r.text()).then(html => {
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+                        a.download = 'Trello.html';
+                        a.click();
+                        URL.revokeObjectURL(a.href);
+                    });
                 }
             }
         }
